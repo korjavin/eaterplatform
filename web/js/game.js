@@ -1023,13 +1023,13 @@ function collectDot(dot) {
   dot.collected = true;
 
   if (dot.red) {
-    player.radius = Math.max(MIN_PLAYER_RADIUS, player.radius / 1.10);
+    player.radius = Math.max(MIN_PLAYER_RADIUS, player.radius / 1.05);
   } else if (dot.green) {
     player.speedBoostTimer = BOOST_DURATION_FRAMES;
     player.speed = BOOSTED_PLAYER_SPEED;
     player.jumpForce = BOOSTED_JUMP_FORCE;
   } else {
-    player.radius *= 1.10;
+    player.radius *= 1.05;
   }
 
   score += 100;
@@ -1120,7 +1120,7 @@ function update() {
   // Jumping (scaled by size/weight)
   if ((keys.ArrowUp || keys.KeyW || keys.Space) && player.grounded) {
     const sizeDiff = player.radius - 15;
-    const currentJumpForce = Math.max(5, player.jumpForce * (1 - sizeDiff * 0.035));
+    const currentJumpForce = Math.max(7.2, player.jumpForce - sizeDiff * 0.25);
     player.vy = -currentJumpForce;
     player.grounded = false;
     player.boostedJumpActive = player.speedBoostTimer > 0;
