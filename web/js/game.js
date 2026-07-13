@@ -254,6 +254,9 @@ let mouthClosing = false;
 // Physics configuration
 const GRAVITY = 0.5;
 const FRICTION = 0.85;
+const SMALL_DOT_RADIUS = 6;
+const BIG_DOT_RADIUS = 12;
+const BIG_DOT_MIN_PLAYER_RADIUS = 18;
 
 // Player configuration
 const player = {
@@ -297,7 +300,7 @@ const LEVELS = {
     dots: [
       { x: 210, y: 270, collected: false },
       { x: 410, y: 190, collected: false },
-      { x: 610, y: 120, collected: false },
+      { x: 610, y: 120, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 100, y: 170, collected: false },
       { x: 380, y: 350, collected: false }
     ],
@@ -318,7 +321,7 @@ const LEVELS = {
     dots: [
       { x: 120, y: 270, collected: false },
       { x: 320, y: 190, collected: false },
-      { x: 520, y: 110, collected: false },
+      { x: 520, y: 110, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 700, y: 190, collected: false },
       { x: 200, y: 350, collected: false },
       { x: 600, y: 350, collected: false }
@@ -603,6 +606,10 @@ function updateHUD() {
   levelVal.textContent = level;
 }
 
+function getDotRadius(dot) {
+  return dot.radius ?? (dot.big ? BIG_DOT_RADIUS : SMALL_DOT_RADIUS);
+}
+
 // Collisions with platforms
 function checkPlatformCollisions() {
   player.grounded = false;
@@ -718,7 +725,10 @@ function update() {
       const dx = player.x - dot.x;
       const dy = player.y - dot.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance < player.radius + 6) {
+      const dotRadius = getDotRadius(dot);
+      if (distance < player.radius + dotRadius) {
+        if (dot.big && player.radius < BIG_DOT_MIN_PLAYER_RADIUS) continue;
+
         dot.collected = true;
         player.radius *= 1.10;
         score += 100;
@@ -930,11 +940,21 @@ function draw() {
   // Draw Dots
   for (const dot of dots) {
     if (!dot.collected) {
-      ctx.fillStyle = '#f3ca20';
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = '#f3ca20';
+      const isBig = !!dot.big;
+      const dotRadius = getDotRadius(dot);
+      ctx.fillStyle = isBig ? '#f39c12' : '#f3ca20';
+      ctx.shadowBlur = isBig ? 14 : 8;
+      ctx.shadowColor = ctx.fillStyle;
+      if (isBig) {
+        const pulse = 0.5 + Math.sin(performance.now() / 180) * 0.25;
+        ctx.strokeStyle = `rgba(243, 156, 18, ${pulse})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dotRadius + 5, 0, Math.PI * 2);
+        ctx.stroke();
+      }
       ctx.beginPath();
-      ctx.arc(dot.x, dot.y, 6, 0, Math.PI * 2);
+      ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0; // reset
     }
