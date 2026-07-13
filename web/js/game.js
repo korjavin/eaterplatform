@@ -673,9 +673,11 @@ function update() {
     player.vx *= FRICTION;
   }
 
-  // Jumping
+  // Jumping (scaled by size/weight)
   if ((keys.ArrowUp || keys.KeyW || keys.Space) && player.grounded) {
-    player.vy = -player.jumpForce;
+    const sizeDiff = player.radius - 15;
+    const currentJumpForce = Math.max(5, player.jumpForce * (1 - sizeDiff * 0.035));
+    player.vy = -currentJumpForce;
     player.grounded = false;
     soundEffects.playJumpSound();
   }
