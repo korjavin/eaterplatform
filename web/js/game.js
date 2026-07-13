@@ -1190,6 +1190,8 @@ function levelComplete() {
     gameVictory();
     return;
   }
+  lives = Math.min(5, lives + 1);
+  updateHUD();
   setTranslatedText(overlay.querySelector('h2'), 'level_complete');
   setTranslatedText(overlay.querySelector('p'), 'level_complete_message', {
     level,
