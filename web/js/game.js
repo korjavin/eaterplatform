@@ -15,6 +15,9 @@ const settingsModal = document.getElementById('settings-modal');
 const settingsCloseBtn = document.getElementById('settings-close-btn');
 const soundToggle = document.getElementById('setting-sound');
 const languageSelect = document.getElementById('setting-lang');
+const rulesModal = document.getElementById('rules-modal');
+const openRulesBtn = document.getElementById('open-rules-btn');
+const closeRulesBtn = document.getElementById('close-rules-btn');
 
 const DEFAULT_SETTINGS = {
   sound: true,
@@ -69,7 +72,10 @@ const TRANSLATIONS = {
     player: 'Player',
     loading: 'Loading...',
     no_scores: 'No scores yet. Be the first!',
-    leaderboard_unavailable: 'Leaderboard unavailable.'
+    leaderboard_unavailable: 'Leaderboard unavailable.',
+    open_rules_btn: 'Game Rules',
+    rules_title: 'Game Rules & Mentor Tips',
+    close_rules_btn: 'Let\'s Play!'
   },
   de: {
     title: '🟡 Eater Platformer',
@@ -118,7 +124,10 @@ const TRANSLATIONS = {
     player: 'Spieler',
     loading: 'Lädt...',
     no_scores: 'Noch keine Punkte. Sei der Erste!',
-    leaderboard_unavailable: 'Bestenliste nicht verfügbar.'
+    leaderboard_unavailable: 'Bestenliste nicht verfügbar.',
+    open_rules_btn: 'Spielregeln',
+    rules_title: 'Spielregeln & Mentor-Tipps',
+    close_rules_btn: 'Lass uns spielen!'
   },
   ru: {
     title: '🟡 Eater Platformer',
@@ -167,7 +176,10 @@ const TRANSLATIONS = {
     player: 'Игрок',
     loading: 'Загрузка...',
     no_scores: 'Результатов пока нет. Будь первым!',
-    leaderboard_unavailable: 'Таблица лидеров недоступна.'
+    leaderboard_unavailable: 'Таблица лидеров недоступна.',
+    open_rules_btn: 'Правила игры',
+    rules_title: 'Правила игры и советы ментора',
+    close_rules_btn: 'Поехали!'
   }
 };
 
@@ -851,6 +863,14 @@ playerNameInput.addEventListener('keydown', (event) => {
 
 resetSizeBtn.addEventListener('click', triggerSizeReset);
 configureMobileControls();
+
+openRulesBtn.addEventListener('click', () => {
+  rulesModal.classList.remove('hidden');
+});
+
+closeRulesBtn.addEventListener('click', () => {
+  rulesModal.classList.add('hidden');
+});
 
 function getCookie(name) {
   const prefix = `${encodeURIComponent(name)}=`;
