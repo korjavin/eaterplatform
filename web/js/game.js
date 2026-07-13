@@ -362,8 +362,8 @@ const LEVELS = {
       { x: 380, y: 350, collected: false }
     ],
     enemies: [
-      { x: 350, y: 205, width: 20, height: 15, vx: 1, range: 100, startX: 350 },
-      { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 150 }
+      { x: 400, y: 205, width: 20, height: 15, vx: 1, range: 40, startX: 400 },
+      { x: 200, y: 285, width: 20, height: 15, vx: 1.5, range: 40, startX: 200 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   },
@@ -384,9 +384,9 @@ const LEVELS = {
       { x: 600, y: 350, collected: false }
     ],
     enemies: [
-      { x: 250, y: 205, width: 20, height: 15, vx: 1.2, range: 120, startX: 250 },
-      { x: 450, y: 125, width: 20, height: 15, vx: 1.8, range: 120, startX: 450 },
-      { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 70, startX: 150 }
+      { x: 315, y: 205, width: 20, height: 15, vx: 1.2, range: 55, startX: 315 },
+      { x: 515, y: 125, width: 20, height: 15, vx: 1.8, range: 55, startX: 515 },
+      { x: 115, y: 285, width: 20, height: 15, vx: 1.5, range: 55, startX: 115 }
     ],
     portal: { x: 50, y: 240, width: 40, height: 60, active: false }
   },
@@ -406,7 +406,7 @@ const LEVELS = {
       { x: 300, y: 350, collected: false, red: true }
     ],
     enemies: [
-      { x: 300, y: 205, width: 20, height: 15, vx: 1.5, range: 100, startX: 300 }
+      { x: 350, y: 205, width: 20, height: 15, vx: 1.5, range: 40, startX: 350 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   },
@@ -427,8 +427,8 @@ const LEVELS = {
       { x: 740, y: 280, collected: false }
     ],
     enemies: [
-      { x: 220, y: 225, width: 20, height: 15, vx: 1.6, range: 100, startX: 220 },
-      { x: 560, y: 225, width: 20, height: 15, vx: -1.6, range: 100, startX: 560 }
+      { x: 270, y: 225, width: 20, height: 15, vx: 1.6, range: 40, startX: 270 },
+      { x: 610, y: 225, width: 20, height: 15, vx: -1.6, range: 40, startX: 610 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   },
@@ -448,8 +448,8 @@ const LEVELS = {
       { x: 400, y: 350, collected: false, red: true }
     ],
     enemies: [
-      { x: 150, y: 285, width: 20, height: 15, vx: 1.4, range: 120, startX: 150 },
-      { x: 400, y: 285, width: 20, height: 15, vx: -1.4, range: 120, startX: 400 }
+      { x: 215, y: 285, width: 20, height: 15, vx: 1.4, range: 55, startX: 215 },
+      { x: 465, y: 285, width: 20, height: 15, vx: -1.4, range: 55, startX: 465 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   },
@@ -471,8 +471,8 @@ const LEVELS = {
       { x: 650, y: 350, collected: false, green: true }
     ],
     enemies: [
-      { x: 200, y: 185, width: 20, height: 15, vx: 1.8, range: 100, startX: 200 },
-      { x: 500, y: 185, width: 20, height: 15, vx: -1.8, range: 100, startX: 500 }
+      { x: 250, y: 185, width: 20, height: 15, vx: 1.8, range: 40, startX: 250 },
+      { x: 550, y: 185, width: 20, height: 15, vx: -1.8, range: 40, startX: 550 }
     ],
     portal: { x: 20, y: 320, width: 40, height: 60, active: false }
   },
@@ -495,7 +495,7 @@ const LEVELS = {
       { x: 400, y: 70, collected: false, big: true, radius: BIG_DOT_RADIUS }
     ],
     enemies: [
-      { x: 250, y: 85, width: 20, height: 15, vx: 2, range: 260, startX: 250 }
+      { x: 395, y: 85, width: 20, height: 15, vx: 2, range: 125, startX: 395 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   },
@@ -521,7 +521,7 @@ const LEVELS = {
       { x: 550, y: 350, collected: false, red: true }
     ],
     enemies: [
-      { x: 350, y: 135, width: 20, height: 15, vx: 1.2, range: 60, startX: 350 }
+      { x: 380, y: 135, width: 20, height: 15, vx: 1.2, range: 20, startX: 380 }
     ],
     portal: { x: 740, y: 320, width: 40, height: 60, active: false }
   },
@@ -542,8 +542,8 @@ const LEVELS = {
       { x: 450, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS }
     ],
     enemies: [
-      { x: 200, y: 195, width: 20, height: 15, vx: 2.2, range: 360, startX: 200 },
-      { x: 300, y: 105, width: 20, height: 15, vx: -1.8, range: 160, startX: 300 }
+      { x: 395, y: 195, width: 20, height: 15, vx: 2.2, range: 175, startX: 395 },
+      { x: 395, y: 105, width: 20, height: 15, vx: -1.8, range: 75, startX: 395 }
     ],
     portal: { x: 50, y: 320, width: 40, height: 60, active: false }
   },
@@ -566,8 +566,8 @@ const LEVELS = {
       { x: 400, y: 50, collected: false, big: true, radius: BIG_DOT_RADIUS }
     ],
     enemies: [
-      { x: 200, y: 215, width: 20, height: 15, vx: 1.5, range: 80, startX: 200 },
-      { x: 500, y: 215, width: 20, height: 15, vx: -1.5, range: 80, startX: 500 }
+      { x: 240, y: 215, width: 20, height: 15, vx: 1.5, range: 30, startX: 240 },
+      { x: 540, y: 215, width: 20, height: 15, vx: -1.5, range: 30, startX: 540 }
     ],
     portal: { x: 740, y: 320, width: 40, height: 60, active: false }
   },
@@ -590,8 +590,8 @@ const LEVELS = {
       { x: 400, y: 350, collected: false, green: true }
     ],
     enemies: [
-      { x: 100, y: 215, width: 20, height: 15, vx: 2.5, range: 560, startX: 100 },
-      { x: 150, y: 135, width: 20, height: 15, vx: -2.0, range: 460, startX: 150 }
+      { x: 395, y: 215, width: 20, height: 15, vx: 2.5, range: 275, startX: 395 },
+      { x: 395, y: 135, width: 20, height: 15, vx: -2.0, range: 225, startX: 395 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   }
