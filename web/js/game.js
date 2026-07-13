@@ -300,6 +300,7 @@ let scoreSubmitted = false;
 let mouthAngle = 0.2;
 let mouthClosing = false;
 let cheatBuffer = [];
+let cheatTextEndTime = 0;
 
 // Physics configuration
 const GRAVITY = 0.5;
@@ -812,7 +813,8 @@ function configureMobileControls() {
 
 // Setup input listeners
 window.addEventListener('keydown', (e) => {
-  if (e.key.length === 1) handleCheatInput(e.key);
+  if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+  if (e.key && e.key.length === 1 && !e.repeat) handleCheatInput(e.key);
   if (e.code in keys) keys[e.code] = true;
   if (e.code === 'KeyR' && !e.repeat) {
     triggerSizeReset();
@@ -1009,6 +1011,7 @@ function handleCheatInput(keyChar) {
 
   if (cheatBuffer.map(input => input.char).join('').endsWith(CHEAT_CODE)) {
     lives = Math.min(5, lives + 3);
+    cheatTextEndTime = Date.now() + 16000;
     soundEffects.playCheatSuccessSound();
     cheatBuffer = [];
     updateHUD();
@@ -1664,6 +1667,19 @@ function draw() {
   ctx.lineTo(player.x + 6.5 * scale, player.y + player.radius);
   ctx.stroke();
   ctx.restore();
+
+  if (Date.now() < cheatTextEndTime) {
+    ctx.save();
+    ctx.font = '80px "Bangers", "Impact", "Arial Black", sans-serif';
+    ctx.fillStyle = '#ff3333';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 8;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.strokeText('VITALYMANAT', canvas.width / 2, canvas.height / 2);
+    ctx.fillText('VITALYMANAT', canvas.width / 2, canvas.height / 2);
+    ctx.restore();
+  }
 }
 
 function gameLoop() {
