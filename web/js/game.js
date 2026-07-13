@@ -9,6 +9,129 @@ const playerNameField = document.getElementById('player-name-field');
 const playerNameInput = document.getElementById('player-name');
 const playerNameError = document.getElementById('player-name-error');
 const leaderboardBody = document.getElementById('leaderboard-body');
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const settingsCloseBtn = document.getElementById('settings-close-btn');
+const soundToggle = document.getElementById('setting-sound');
+const languageSelect = document.getElementById('setting-lang');
+
+const DEFAULT_SETTINGS = {
+  sound: true,
+  language: 'en'
+};
+
+const TRANSLATIONS = {
+  en: {
+    title: '🟡 Eater Platformer',
+    subtitle: "A blocky green monster's chomp-tastic arcade adventure!",
+    intro_text: 'Eat dots, avoid ghost blocks, and reach the exit portal!',
+    start_game: 'Start Game',
+    try_again: 'Try Again',
+    play_again: 'Play Again',
+    start_level: 'Start Level {level}',
+    game_over: 'Game Over',
+    game_over_message: 'You scored {score} points. Try again!',
+    victory: 'Victory!',
+    victory_message: 'Congratulations! You beat all levels with a score of {score}!',
+    level_complete: 'Level Complete!',
+    level_complete_message: 'Proceeding to Level {level}. Great job!',
+    score: 'Score',
+    lives: 'Lives',
+    level: 'Level',
+    how_to_play: 'How to Play',
+    move_instruction: 'Use ← → or A D to Move',
+    jump_instruction: 'Press Space or W to Jump',
+    collect_dots: 'Collect all yellow dots to open the exit portal',
+    avoid_spikes: 'Avoid spikes and patrolling enemies',
+    settings_title: 'Settings',
+    setting_sound_label: 'Sound Effects',
+    setting_lang_label: 'Language',
+    close_btn: 'Close',
+    player_name_label: 'Choose your player name',
+    player_name_placeholder: 'Player name',
+    player_name_required: 'Enter a player name to start.',
+    leaderboard: '🏆 Leaderboard',
+    rank: 'Rank',
+    player: 'Player',
+    loading: 'Loading...',
+    no_scores: 'No scores yet. Be the first!',
+    leaderboard_unavailable: 'Leaderboard unavailable.'
+  },
+  de: {
+    title: '🟡 Eater Platformer',
+    subtitle: 'Ein blockiges grünes Monster in einem mampfigen Arcade-Abenteuer!',
+    intro_text: 'Friss Punkte, meide Geisterblöcke und erreiche das Ausgangsportal!',
+    start_game: 'Spiel starten',
+    try_again: 'Erneut versuchen',
+    play_again: 'Nochmal spielen',
+    start_level: 'Level {level} starten',
+    game_over: 'Spiel vorbei',
+    game_over_message: 'Du hast {score} Punkte erzielt. Versuch es noch einmal!',
+    victory: 'Sieg!',
+    victory_message: 'Glückwunsch! Du hast alle Level mit {score} Punkten geschafft!',
+    level_complete: 'Level geschafft!',
+    level_complete_message: 'Weiter zu Level {level}. Gut gemacht!',
+    score: 'Punkte',
+    lives: 'Leben',
+    level: 'Level',
+    how_to_play: 'Spielanleitung',
+    move_instruction: 'Nutze ← → oder A D zum Bewegen',
+    jump_instruction: 'Drücke Leertaste oder W zum Springen',
+    collect_dots: 'Sammle alle gelben Punkte, um das Ausgangsportal zu öffnen',
+    avoid_spikes: 'Meide Stacheln und patrouillierende Gegner',
+    settings_title: 'Einstellungen',
+    setting_sound_label: 'Soundeffekte',
+    setting_lang_label: 'Sprache',
+    close_btn: 'Schließen',
+    player_name_label: 'Wähle deinen Spielernamen',
+    player_name_placeholder: 'Spielername',
+    player_name_required: 'Gib einen Spielernamen ein, um zu starten.',
+    leaderboard: '🏆 Bestenliste',
+    rank: 'Rang',
+    player: 'Spieler',
+    loading: 'Lädt...',
+    no_scores: 'Noch keine Punkte. Sei der Erste!',
+    leaderboard_unavailable: 'Bestenliste nicht verfügbar.'
+  },
+  ru: {
+    title: '🟡 Eater Platformer',
+    subtitle: 'Аркадное чавкающее приключение блочного зеленого монстра!',
+    intro_text: 'Ешь точки, избегай блоков-призраков и доберись до портала выхода!',
+    start_game: 'Начать игру',
+    try_again: 'Попробовать снова',
+    play_again: 'Играть снова',
+    start_level: 'Начать уровень {level}',
+    game_over: 'Игра окончена',
+    game_over_message: 'Ты набрал {score} очков. Попробуй снова!',
+    victory: 'Победа!',
+    victory_message: 'Поздравляем! Ты прошел все уровни со счетом {score}!',
+    level_complete: 'Уровень пройден!',
+    level_complete_message: 'Переход на уровень {level}. Отличная работа!',
+    score: 'Счет',
+    lives: 'Жизни',
+    level: 'Уровень',
+    how_to_play: 'Как играть',
+    move_instruction: 'Используй ← → или A D для движения',
+    jump_instruction: 'Нажми Пробел или W для прыжка',
+    collect_dots: 'Собери все желтые точки, чтобы открыть портал выхода',
+    avoid_spikes: 'Избегай шипов и патрулирующих врагов',
+    settings_title: 'Настройки',
+    setting_sound_label: 'Звуковые эффекты',
+    setting_lang_label: 'Язык',
+    close_btn: 'Закрыть',
+    player_name_label: 'Выбери имя игрока',
+    player_name_placeholder: 'Имя игрока',
+    player_name_required: 'Введи имя игрока, чтобы начать.',
+    leaderboard: '🏆 Таблица лидеров',
+    rank: 'Место',
+    player: 'Игрок',
+    loading: 'Загрузка...',
+    no_scores: 'Результатов пока нет. Будь первым!',
+    leaderboard_unavailable: 'Таблица лидеров недоступна.'
+  }
+};
+
+const settings = loadSettings();
 
 // Game state
 let score = 0;
@@ -100,6 +223,98 @@ const LEVELS = {
   }
 };
 
+function loadSettings() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('eater-settings') || '{}');
+    const language = TRANSLATIONS[stored.language] ? stored.language : getCookie('lang');
+    return {
+      sound: typeof stored.sound === 'boolean' ? stored.sound : DEFAULT_SETTINGS.sound,
+      language: TRANSLATIONS[language] ? language : DEFAULT_SETTINGS.language
+    };
+  } catch (error) {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+function saveSettings() {
+  try {
+    localStorage.setItem('eater-settings', JSON.stringify(settings));
+  } catch (error) {
+    console.warn('Unable to persist settings:', error);
+  }
+  setCookie('lang', settings.language);
+}
+
+function t(key, values = {}) {
+  const dictionary = TRANSLATIONS[settings.language] || TRANSLATIONS.en;
+  const template = dictionary[key] || TRANSLATIONS.en[key] || key;
+  return template.replace(/\{(\w+)\}/g, (_, name) => values[name] ?? '');
+}
+
+function setTranslatedText(element, key, values = {}) {
+  element.dataset.i18n = key;
+  element.dataset.i18nValues = JSON.stringify(values);
+  element.textContent = t(key, values);
+}
+
+function getI18nValues(element) {
+  if (!element.dataset.i18nValues) return {};
+  try {
+    return JSON.parse(element.dataset.i18nValues);
+  } catch (error) {
+    return {};
+  }
+}
+
+function applyLanguage(lang) {
+  if (!TRANSLATIONS[lang]) return;
+
+  settings.language = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach((element) => {
+    element.textContent = t(element.dataset.i18n, getI18nValues(element));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  });
+  if (languageSelect.value !== lang) languageSelect.value = lang;
+  saveSettings();
+}
+
+function syncSettingsControls() {
+  soundToggle.checked = settings.sound;
+  languageSelect.value = settings.language;
+}
+
+function openSettings() {
+  settingsModal.classList.remove('hidden');
+  settingsCloseBtn.focus();
+}
+
+function closeSettings() {
+  settingsModal.classList.add('hidden');
+  settingsBtn.focus();
+}
+
+function configureSettingsPanel() {
+  syncSettingsControls();
+  settingsBtn.addEventListener('click', openSettings);
+  settingsCloseBtn.addEventListener('click', closeSettings);
+  settingsModal.addEventListener('click', (event) => {
+    if (event.target === settingsModal) closeSettings();
+  });
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !settingsModal.classList.contains('hidden')) closeSettings();
+  });
+  soundToggle.addEventListener('change', () => {
+    settings.sound = soundToggle.checked;
+    saveSettings();
+  });
+  languageSelect.addEventListener('change', () => {
+    applyLanguage(languageSelect.value);
+  });
+}
+
 // Setup input listeners
 window.addEventListener('keydown', (e) => {
   if (e.code in keys) keys[e.code] = true;
@@ -152,28 +367,30 @@ function ensureUsername() {
 
   const username = playerNameInput.value.trim();
   if (!username) {
-    playerNameError.textContent = 'Enter a player name to start.';
+    setTranslatedText(playerNameError, 'player_name_required');
     playerNameInput.focus();
     return false;
   }
 
   setCookie('username', username);
   playerNameError.textContent = '';
+  delete playerNameError.dataset.i18n;
+  delete playerNameError.dataset.i18nValues;
   playerNameField.hidden = true;
   return true;
 }
 
-function showLeaderboardMessage(message) {
+function showLeaderboardMessage(key) {
   leaderboardBody.replaceChildren();
   const row = leaderboardBody.insertRow();
   const cell = row.insertCell();
   cell.colSpan = 3;
   cell.className = 'leaderboard-message';
-  cell.textContent = message;
+  setTranslatedText(cell, key);
 }
 
 async function fetchLeaderboard() {
-  showLeaderboardMessage('Loading...');
+  showLeaderboardMessage('loading');
 
   try {
     const response = await fetch('/api/scores');
@@ -185,7 +402,7 @@ async function fetchLeaderboard() {
     leaderboardBody.replaceChildren();
     const topScores = scores.slice(0, 10);
     if (topScores.length === 0) {
-      showLeaderboardMessage('No scores yet. Be the first!');
+      showLeaderboardMessage('no_scores');
       return;
     }
 
@@ -197,7 +414,7 @@ async function fetchLeaderboard() {
     });
   } catch (error) {
     console.error('Failed to load leaderboard:', error);
-    showLeaderboardMessage('Leaderboard unavailable.');
+    showLeaderboardMessage('leaderboard_unavailable');
   }
 }
 
@@ -239,9 +456,9 @@ function loadLevel(levelNum) {
 function gameVictory() {
   gameActive = false;
   submitCurrentScore();
-  overlay.querySelector('h2').textContent = 'Victory!';
-  overlay.querySelector('p').textContent = `Congratulations! You beat all levels with a score of ${score}!`;
-  overlay.querySelector('button').textContent = 'Play Again';
+  setTranslatedText(overlay.querySelector('h2'), 'victory');
+  setTranslatedText(overlay.querySelector('p'), 'victory_message', { score });
+  setTranslatedText(overlay.querySelector('button'), 'play_again');
   overlay.classList.remove('hidden');
   level = 1;
 }
@@ -440,9 +657,9 @@ function update() {
 function gameOver() {
   gameActive = false;
   submitCurrentScore();
-  overlay.querySelector('h2').textContent = 'Game Over';
-  overlay.querySelector('p').textContent = `You scored ${score} points. Try again!`;
-  overlay.querySelector('button').textContent = 'Try Again';
+  setTranslatedText(overlay.querySelector('h2'), 'game_over');
+  setTranslatedText(overlay.querySelector('p'), 'game_over_message', { score });
+  setTranslatedText(overlay.querySelector('button'), 'try_again');
   overlay.classList.remove('hidden');
 }
 
@@ -455,9 +672,9 @@ function levelComplete() {
     gameVictory();
     return;
   }
-  overlay.querySelector('h2').textContent = 'Level Complete!';
-  overlay.querySelector('p').textContent = `Proceeding to Level ${level}. Great job!`;
-  overlay.querySelector('button').textContent = `Start Level ${level}`;
+  setTranslatedText(overlay.querySelector('h2'), 'level_complete');
+  setTranslatedText(overlay.querySelector('p'), 'level_complete_message', { level });
+  setTranslatedText(overlay.querySelector('button'), 'start_level', { level });
   overlay.classList.remove('hidden');
 }
 
@@ -667,5 +884,7 @@ function gameLoop() {
 
 // Initial draw of static game screen
 draw();
+configureSettingsPanel();
+applyLanguage(settings.language);
 configureUsernamePrompt();
 void fetchLeaderboard();

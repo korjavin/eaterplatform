@@ -38,8 +38,10 @@ body {
 }
 
 header {
+  position: relative;
   text-align: center;
   margin-bottom: 24px;
+  padding: 0 56px;
 }
 
 header h1 {
@@ -56,6 +58,31 @@ header h1 {
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 600;
+}
+
+.settings-btn {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(69, 243, 255, 0.45);
+  border-radius: 50%;
+  background: rgba(31, 40, 51, 0.92);
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(69, 243, 255, 0.18);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-btn:hover,
+.settings-btn:focus-visible {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 24px rgba(69, 243, 255, 0.38);
+  transform: rotate(20deg) scale(1.06);
+  outline: none;
 }
 
 .game-card {
@@ -184,6 +211,19 @@ header h1 {
 .btn-primary:hover {
   transform: scale(1.05);
   box-shadow: 0 0 25px rgba(69, 243, 255, 0.6);
+}
+
+.btn-secondary {
+  background: rgba(69, 243, 255, 0.12);
+  color: var(--text-bright);
+  border: 1px solid rgba(69, 243, 255, 0.45);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  background: rgba(69, 243, 255, 0.22);
+  box-shadow: 0 0 18px rgba(69, 243, 255, 0.28);
+  outline: none;
 }
 
 .controls-panel {
@@ -336,4 +376,137 @@ footer {
   text-align: center;
   font-size: 0.8rem;
   opacity: 0.6;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(11, 12, 16, 0.78);
+  backdrop-filter: blur(10px);
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-content {
+  width: min(420px, 100%);
+  padding: 26px;
+  border: 1px solid rgba(69, 243, 255, 0.38);
+  border-radius: var(--border-radius);
+  background: linear-gradient(180deg, rgba(31, 40, 51, 0.98), rgba(11, 12, 16, 0.98));
+  box-shadow: var(--box-shadow), 0 0 32px rgba(69, 243, 255, 0.16);
+  transform: translateY(0) scale(1);
+  transition: transform 0.2s ease;
+}
+
+.modal.hidden .modal-content {
+  transform: translateY(10px) scale(0.98);
+}
+
+.modal-content h2 {
+  margin-bottom: 22px;
+  color: var(--text-bright);
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.setting-item label {
+  color: var(--text-bright);
+  font-weight: 600;
+}
+
+#setting-sound {
+  appearance: none;
+  position: relative;
+  width: 54px;
+  height: 30px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#setting-sound::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text-bright);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease;
+}
+
+#setting-sound:checked {
+  border-color: var(--primary-color);
+  background: rgba(69, 243, 255, 0.36);
+}
+
+#setting-sound:checked::before {
+  transform: translateX(24px);
+}
+
+#setting-sound:focus-visible,
+#setting-lang:focus-visible {
+  outline: 3px solid rgba(69, 243, 255, 0.24);
+  outline-offset: 3px;
+}
+
+#setting-lang {
+  min-width: 150px;
+  padding: 10px 36px 10px 12px;
+  border: 1px solid rgba(69, 243, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--text-bright);
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  header {
+    padding: 52px 0 0;
+  }
+
+  .settings-btn {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .settings-btn:hover,
+  .settings-btn:focus-visible {
+    transform: translateX(-50%) rotate(20deg) scale(1.06);
+  }
+
+  .setting-item {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #setting-lang {
+    width: 100%;
+  }
 }

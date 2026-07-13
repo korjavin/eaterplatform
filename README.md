@@ -1,6 +1,6 @@
 # Eater Platformer 🟡
 
-A retro-modern HTML5 canvas platformer game where you play as Eater, eating dots, avoiding ghost blocks, and finding the exit portal. 
+A blocky green monster's chomp-tastic HTML5 canvas platformer adventure where you play as Eater, eating dots, avoiding ghost blocks, and finding the exit portal.
 
 This project is built with a minimal Go backend for serving the static web files and exposing health checks, structured for automated deployment using GitOps.
 
