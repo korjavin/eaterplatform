@@ -5,12 +5,17 @@ const overlay = document.getElementById('game-overlay');
 const scoreVal = document.getElementById('score-val');
 const livesVal = document.getElementById('lives-val');
 const levelVal = document.getElementById('level-val');
+const playerNameField = document.getElementById('player-name-field');
+const playerNameInput = document.getElementById('player-name');
+const playerNameError = document.getElementById('player-name-error');
+const leaderboardBody = document.getElementById('leaderboard-body');
 
 // Game state
 let score = 0;
 let lives = 3;
 let level = 1;
 let gameActive = false;
+let scoreSubmitted = false;
 let mouthAngle = 0.2;
 let mouthClosing = false;
 
@@ -108,6 +113,8 @@ window.addEventListener('keyup', (e) => {
 });
 
 startBtn.addEventListener('click', () => {
+  if (!ensureUsername()) return;
+
   overlay.classList.add('hidden');
   if (lives <= 0 || (level === 1 && !gameActive)) {
     resetGame();
@@ -119,6 +126,105 @@ startBtn.addEventListener('click', () => {
     gameLoop();
   }
 });
+
+playerNameInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') startBtn.click();
+});
+
+function getCookie(name) {
+  const prefix = `${encodeURIComponent(name)}=`;
+  const cookie = document.cookie.split('; ').find(item => item.startsWith(prefix));
+  return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : '';
+}
+
+function setCookie(name, value) {
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; max-age=31536000; path=/; SameSite=Lax`;
+}
+
+function configureUsernamePrompt() {
+  const username = getCookie('username').trim();
+  playerNameField.hidden = username !== '';
+  if (!username) window.requestAnimationFrame(() => playerNameInput.focus());
+}
+
+function ensureUsername() {
+  if (getCookie('username').trim()) return true;
+
+  const username = playerNameInput.value.trim();
+  if (!username) {
+    playerNameError.textContent = 'Enter a player name to start.';
+    playerNameInput.focus();
+    return false;
+  }
+
+  setCookie('username', username);
+  playerNameError.textContent = '';
+  playerNameField.hidden = true;
+  return true;
+}
+
+function showLeaderboardMessage(message) {
+  leaderboardBody.replaceChildren();
+  const row = leaderboardBody.insertRow();
+  const cell = row.insertCell();
+  cell.colSpan = 3;
+  cell.className = 'leaderboard-message';
+  cell.textContent = message;
+}
+
+async function fetchLeaderboard() {
+  showLeaderboardMessage('Loading...');
+
+  try {
+    const response = await fetch('/api/scores');
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+    const scores = await response.json();
+    if (!Array.isArray(scores)) throw new Error('Unexpected leaderboard response');
+
+    leaderboardBody.replaceChildren();
+    const topScores = scores.slice(0, 10);
+    if (topScores.length === 0) {
+      showLeaderboardMessage('No scores yet. Be the first!');
+      return;
+    }
+
+    topScores.forEach((entry, index) => {
+      const row = leaderboardBody.insertRow();
+      row.insertCell().textContent = String(index + 1);
+      row.insertCell().textContent = String(entry.name ?? 'Anonymous');
+      row.insertCell().textContent = String(entry.score ?? 0);
+    });
+  } catch (error) {
+    console.error('Failed to load leaderboard:', error);
+    showLeaderboardMessage('Leaderboard unavailable.');
+  }
+}
+
+async function submitScore(name, finalScore) {
+  try {
+    const response = await fetch('/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, score: finalScore })
+    });
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+  } catch (error) {
+    console.error('Failed to submit score:', error);
+  } finally {
+    await fetchLeaderboard();
+  }
+}
+
+function submitCurrentScore() {
+  if (scoreSubmitted) return;
+
+  const username = getCookie('username').trim();
+  if (!username) return;
+
+  scoreSubmitted = true;
+  void submitScore(username, score);
+}
 
 function loadLevel(levelNum) {
   const lvlConfig = LEVELS[levelNum];
@@ -132,6 +238,7 @@ function loadLevel(levelNum) {
 
 function gameVictory() {
   gameActive = false;
+  submitCurrentScore();
   overlay.querySelector('h2').textContent = 'Victory!';
   overlay.querySelector('p').textContent = `Congratulations! You beat all levels with a score of ${score}!`;
   overlay.querySelector('button').textContent = 'Play Again';
@@ -143,6 +250,7 @@ function resetGame() {
   score = 0;
   lives = 3;
   level = 1;
+  scoreSubmitted = false;
   loadLevel(level);
 }
 
@@ -331,6 +439,7 @@ function update() {
 
 function gameOver() {
   gameActive = false;
+  submitCurrentScore();
   overlay.querySelector('h2').textContent = 'Game Over';
   overlay.querySelector('p').textContent = `You scored ${score} points. Try again!`;
   overlay.querySelector('button').textContent = 'Try Again';
@@ -558,3 +667,5 @@ function gameLoop() {
 
 // Initial draw of static game screen
 draw();
+configureUsernamePrompt();
+void fetchLeaderboard();
