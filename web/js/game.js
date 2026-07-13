@@ -289,10 +289,18 @@ let mouthClosing = false;
 
 // Physics configuration
 const GRAVITY = 0.5;
-const FRICTION = 0.85;
+const BASE_PLAYER_SPEED = 4;
+const BASE_JUMP_FORCE = 10;
+const BASE_FRICTION = 0.85;
+const BOOSTED_PLAYER_SPEED = 8;
+const BOOSTED_JUMP_FORCE = 14;
+const BOOSTED_FRICTION = 0.96;
+const BOOST_DURATION_FRAMES = 600;
+const BOOST_SLIP_SPEED = 8;
 const SMALL_DOT_RADIUS = 6;
 const BIG_DOT_RADIUS = 12;
 const BIG_DOT_MIN_PLAYER_RADIUS = 18;
+const MIN_PLAYER_RADIUS = 10;
 
 // Player configuration
 const player = {
@@ -301,8 +309,10 @@ const player = {
   radius: 15,
   vx: 0,
   vy: 0,
-  speed: 4,
-  jumpForce: 10,
+  speed: BASE_PLAYER_SPEED,
+  jumpForce: BASE_JUMP_FORCE,
+  speedBoostTimer: 0,
+  boostedJumpActive: false,
   grounded: false,
   facingLeft: false
 };
@@ -381,7 +391,8 @@ const LEVELS = {
       { x: 160, y: 270, collected: false },
       { x: 360, y: 190, collected: false },
       { x: 560, y: 110, collected: false, big: true, radius: BIG_DOT_RADIUS },
-      { x: 260, y: 80, collected: false }
+      { x: 260, y: 80, collected: false },
+      { x: 300, y: 350, collected: false, red: true }
     ],
     enemies: [
       { x: 300, y: 205, width: 20, height: 15, vx: 1.5, range: 100, startX: 300 }
@@ -422,7 +433,8 @@ const LEVELS = {
       { x: 225, y: 270, collected: false },
       { x: 475, y: 270, collected: false },
       { x: 350, y: 180, collected: false },
-      { x: 350, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS }
+      { x: 350, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, red: true }
     ],
     enemies: [
       { x: 150, y: 285, width: 20, height: 15, vx: 1.4, range: 120, startX: 150 },
@@ -444,7 +456,8 @@ const LEVELS = {
       { x: 260, y: 170, collected: false },
       { x: 410, y: 260, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 560, y: 170, collected: false },
-      { x: 710, y: 260, collected: false }
+      { x: 710, y: 260, collected: false },
+      { x: 650, y: 350, collected: false, green: true }
     ],
     enemies: [
       { x: 200, y: 185, width: 20, height: 15, vx: 1.8, range: 100, startX: 200 },
@@ -493,7 +506,8 @@ const LEVELS = {
       { x: 390, y: 120, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 490, y: 190, collected: false },
       { x: 590, y: 270, collected: false },
-      { x: 690, y: 190, collected: false }
+      { x: 690, y: 190, collected: false },
+      { x: 550, y: 350, collected: false, red: true }
     ],
     enemies: [
       { x: 350, y: 135, width: 20, height: 15, vx: 1.2, range: 60, startX: 350 }
@@ -508,6 +522,7 @@ const LEVELS = {
       { x: 300, y: 120, width: 200, height: 15 }
     ],
     dots: [
+      { x: 100, y: 350, collected: false, green: true },
       { x: 150, y: 270, collected: false },
       { x: 650, y: 270, collected: false },
       { x: 250, y: 180, collected: false },
@@ -560,7 +575,8 @@ const LEVELS = {
       { x: 650, y: 200, collected: false },
       { x: 200, y: 120, collected: false },
       { x: 600, y: 120, collected: false },
-      { x: 400, y: 40, collected: false, big: true, radius: BIG_DOT_RADIUS }
+      { x: 400, y: 40, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, green: true }
     ],
     enemies: [
       { x: 100, y: 215, width: 20, height: 15, vx: 2.5, range: 560, startX: 100 },
@@ -805,7 +821,7 @@ function loadLevel(levelNum) {
   dots = lvlConfig.dots.map(d => ({ ...d }));
   enemies = lvlConfig.enemies.map(e => ({ ...e }));
   portal = { ...lvlConfig.portal };
-  resetPlayer();
+  resetPlayer(levelNum > 1);
   updateHUD();
 }
 
@@ -827,12 +843,18 @@ function resetGame() {
   loadLevel(level);
 }
 
-function resetPlayer() {
+function resetPlayer(preserveRadius = false) {
   player.x = 50;
   player.y = 300;
-  player.radius = 15;
+  if (!preserveRadius) {
+    player.radius = 15;
+  }
   player.vx = 0;
   player.vy = 0;
+  player.speed = BASE_PLAYER_SPEED;
+  player.jumpForce = BASE_JUMP_FORCE;
+  player.speedBoostTimer = 0;
+  player.boostedJumpActive = false;
   player.grounded = false;
 }
 
@@ -848,6 +870,30 @@ function getRankName(levelNum) {
 
 function getDotRadius(dot) {
   return dot.radius ?? (dot.big ? BIG_DOT_RADIUS : SMALL_DOT_RADIUS);
+}
+
+function getDotColor(dot) {
+  if (dot.red) return '#e74c3c';
+  if (dot.green) return '#2ecc71';
+  return dot.big ? '#f39c12' : '#f3ca20';
+}
+
+function collectDot(dot) {
+  dot.collected = true;
+
+  if (dot.red) {
+    player.radius = Math.max(MIN_PLAYER_RADIUS, player.radius / 1.10);
+  } else if (dot.green) {
+    player.speedBoostTimer = BOOST_DURATION_FRAMES;
+    player.speed = BOOSTED_PLAYER_SPEED;
+    player.jumpForce = BOOSTED_JUMP_FORCE;
+  } else {
+    player.radius *= 1.10;
+  }
+
+  score += 100;
+  soundEffects.playEatSound();
+  updateHUD();
 }
 
 // Collisions with platforms
@@ -900,6 +946,20 @@ function checkPlatformCollisions() {
 function update() {
   if (!gameActive) return;
 
+  const wasGrounded = player.grounded;
+  const boosted = player.speedBoostTimer > 0;
+  if (boosted) {
+    player.speed = BOOSTED_PLAYER_SPEED;
+    player.jumpForce = BOOSTED_JUMP_FORCE;
+  } else {
+    player.speed = BASE_PLAYER_SPEED;
+    player.jumpForce = BASE_JUMP_FORCE;
+  }
+  const friction = boosted ? BOOSTED_FRICTION : BASE_FRICTION;
+  if (boosted) {
+    player.speedBoostTimer--;
+  }
+
   // Horizontal Movement
   if (keys.ArrowRight || keys.KeyD) {
     player.vx += player.speed * 0.15;
@@ -910,7 +970,7 @@ function update() {
     if (player.vx < -player.speed) player.vx = -player.speed;
     player.facingLeft = true;
   } else {
-    player.vx *= FRICTION;
+    player.vx *= friction;
   }
 
   // Jumping (scaled by size/weight)
@@ -919,6 +979,7 @@ function update() {
     const currentJumpForce = Math.max(5, player.jumpForce * (1 - sizeDiff * 0.035));
     player.vy = -currentJumpForce;
     player.grounded = false;
+    player.boostedJumpActive = player.speedBoostTimer > 0;
     soundEffects.playJumpSound();
   }
 
@@ -945,6 +1006,10 @@ function update() {
 
   // Platform collision resolution
   checkPlatformCollisions();
+  if (!wasGrounded && player.grounded && player.boostedJumpActive) {
+    player.vx = player.facingLeft ? -BOOST_SLIP_SPEED : BOOST_SLIP_SPEED;
+    player.boostedJumpActive = false;
+  }
 
   // Mouth animation
   if (Math.abs(player.vx) > 0.1) {
@@ -971,11 +1036,7 @@ function update() {
       if (distance < player.radius + dotRadius) {
         if (dot.big && player.radius < BIG_DOT_MIN_PLAYER_RADIUS) continue;
 
-        dot.collected = true;
-        player.radius *= 1.10;
-        score += 100;
-        soundEffects.playEatSound();
-        updateHUD();
+        collectDot(dot);
       }
     }
   }
@@ -1034,6 +1095,7 @@ function gameOver() {
   gameActive = false;
   soundEffects.stopBackgroundMusic();
   submitCurrentScore();
+  resetPlayer(false);
   setTranslatedText(overlay.querySelector('h2'), 'game_over');
   setTranslatedText(overlay.querySelector('p'), 'game_over_message', { score });
   setTranslatedText(overlay.querySelector('button'), 'try_again');
@@ -1186,13 +1248,15 @@ function draw() {
   for (const dot of dots) {
     if (!dot.collected) {
       const isBig = !!dot.big;
+      const isGreen = !!dot.green;
       const dotRadius = getDotRadius(dot);
-      ctx.fillStyle = isBig ? '#f39c12' : '#f3ca20';
-      ctx.shadowBlur = isBig ? 14 : 8;
-      ctx.shadowColor = ctx.fillStyle;
-      if (isBig) {
+      const dotColor = getDotColor(dot);
+      ctx.fillStyle = dotColor;
+      ctx.shadowBlur = isBig ? 14 : (isGreen ? 12 : 8);
+      ctx.shadowColor = dotColor;
+      if (isBig || isGreen) {
         const pulse = 0.5 + Math.sin(performance.now() / 180) * 0.25;
-        ctx.strokeStyle = `rgba(243, 156, 18, ${pulse})`;
+        ctx.strokeStyle = isGreen ? `rgba(46, 204, 113, ${pulse})` : `rgba(243, 156, 18, ${pulse})`;
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dotRadius + 5, 0, Math.PI * 2);
@@ -1222,6 +1286,32 @@ function draw() {
   const bodyTop = player.y - player.radius;
   const bodyBottom = player.y + player.radius * 0.6;
   const mouthBackOffset = 2 * scale;
+
+  if (player.speedBoostTimer > 0) {
+    const boostPulse = 0.35 + Math.sin(performance.now() / 90) * 0.12;
+    ctx.save();
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = '#2ecc71';
+    ctx.strokeStyle = `rgba(46, 204, 113, ${boostPulse})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius + 7, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(46, 204, 113, 0.22)';
+    ctx.beginPath();
+    ctx.ellipse(
+      player.x + (player.facingLeft ? 18 : -18) * scale,
+      player.y + 2 * scale,
+      10 * scale,
+      5 * scale,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+    ctx.restore();
+  }
 
   // Outer green body path with cutout mouth gap
   ctx.fillStyle = '#3da842';
