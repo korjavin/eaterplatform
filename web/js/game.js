@@ -1090,6 +1090,18 @@ function update() {
     player.vy = 0;
   }
 
+  if (player.y - player.radius > canvas.height) {
+    lives--;
+    soundEffects.playDieSound();
+    updateHUD();
+    if (lives <= 0) {
+      gameOver();
+    } else {
+      resetPlayer();
+    }
+    return;
+  }
+
   // Platform collision resolution
   checkPlatformCollisions();
   if (!wasGrounded && player.grounded && player.boostedJumpActive) {
