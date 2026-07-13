@@ -1,5 +1,21 @@
+# Binaries
+/server
+/eaterplatform
+*.exe
+/bin/
 
-# Beads / Dolt files (added by bd init)
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Beads / Dolt files
 .dolt/
 *.db
 .beads-credential-key

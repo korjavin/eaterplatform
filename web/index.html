@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eater Platformer | html5 game</title>
+  <meta name="description" content="Eater Platformer - A retro-modern HTML5 platformer game featuring Eater.">
+  <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🟡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app-container">
+    <header>
+      <h1>🟡 Eater Platformer</h1>
+      <p class="subtitle">A retro-modern HTML5 arcade platformer</p>
+    </header>
+
+    <main>
+      <div class="game-card">
+        <div class="canvas-wrapper">
+          <canvas id="game-canvas" width="800" height="400"></canvas>
+          <div id="game-overlay" class="overlay">
+            <div class="overlay-content">
+              <h2>Eater Platformer</h2>
+              <p>Eat dots, avoid ghost blocks, and reach the exit portal!</p>
+              <button id="start-btn" class="btn btn-primary">Start Game</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls-panel">
+          <div class="stats">
+            <div class="stat-box">
+              <span class="stat-label">Score</span>
+              <span id="score-val" class="stat-value">0000</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Lives</span>
+              <span id="lives-val" class="stat-value">❤❤❤</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Level</span>
+              <span id="level-val" class="stat-value">1</span>
+            </div>
+          </div>
+
+          <div class="how-to-play">
+            <h3>How to Play</h3>
+            <ul>
+              <li>Use <span class="key">←</span> <span class="key">→</span> or <span class="key">A</span> <span class="key">D</span> to Move</li>
+              <li>Press <span class="key">Space</span> or <span class="key">W</span> to Jump</li>
+              <li>Collect all yellow dots to open the exit portal</li>
+              <li>Avoid spikes and patrolling enemies</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>MIT License &copy; 2026 Eater Platform Team. Built with Go &amp; HTML5 Canvas.</p>
+    </footer>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>
