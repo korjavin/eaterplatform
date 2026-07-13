@@ -23,6 +23,15 @@
       <div class="game-card">
         <div class="canvas-wrapper">
           <canvas id="game-canvas" width="800" height="400"></canvas>
+          <div id="mobile-controls" class="mobile-controls-overlay" aria-label="Mobile game controls">
+            <div class="dpad">
+              <button id="touch-left" class="touch-btn" type="button" aria-label="Move Left">◀</button>
+              <button id="touch-right" class="touch-btn" type="button" aria-label="Move Right">▶</button>
+            </div>
+            <div class="action-buttons">
+              <button id="touch-jump" class="touch-btn jump-btn" type="button" aria-label="Jump">▲</button>
+            </div>
+          </div>
           <div id="game-overlay" class="overlay">
             <div class="overlay-content">
               <h2 data-i18n="title">Eater Platformer</h2>

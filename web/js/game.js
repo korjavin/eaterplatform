@@ -693,6 +693,55 @@ function configureSettingsPanel() {
   });
 }
 
+function configureMobileControls() {
+  const controls = [
+    { element: document.getElementById('touch-left'), code: 'ArrowLeft' },
+    { element: document.getElementById('touch-right'), code: 'ArrowRight' },
+    { element: document.getElementById('touch-jump'), code: 'Space' }
+  ];
+
+  const setControlState = (control, isPressed) => {
+    if (!control.element) return;
+    keys[control.code] = isPressed;
+    control.element.classList.toggle('active', isPressed);
+  };
+
+  controls.forEach((control) => {
+    if (!control.element) return;
+
+    control.element.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      setControlState(control, true);
+    }, { passive: false });
+
+    control.element.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      setControlState(control, false);
+    }, { passive: false });
+
+    control.element.addEventListener('touchcancel', () => {
+      setControlState(control, false);
+    });
+
+    control.element.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse') return;
+      event.preventDefault();
+      control.element.setPointerCapture(event.pointerId);
+      setControlState(control, true);
+    });
+
+    control.element.addEventListener('pointerup', (event) => {
+      if (event.pointerType === 'mouse') return;
+      event.preventDefault();
+      setControlState(control, false);
+    });
+
+    control.element.addEventListener('pointercancel', () => {
+      setControlState(control, false);
+    });
+  });
+}
+
 // Setup input listeners
 window.addEventListener('keydown', (e) => {
   if (e.code in keys) keys[e.code] = true;
@@ -730,6 +779,7 @@ playerNameInput.addEventListener('keydown', (event) => {
 });
 
 resetSizeBtn.addEventListener('click', triggerSizeReset);
+configureMobileControls();
 
 function getCookie(name) {
   const prefix = `${encodeURIComponent(name)}=`;
