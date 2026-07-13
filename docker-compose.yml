@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  app:
+    image: ghcr.io/korjavin/eaterplatform:latest
+    container_name: eaterplatform
+    networks:
+      - traefik_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK_NAME:-traefik_default}"
+      - "traefik.http.routers.eaterplatform.rule=Host(`${HOSTNAME}`)"
+      - "traefik.http.routers.eaterplatform.entrypoints=websecure"
+      - "traefik.http.routers.eaterplatform.tls.certresolver=myresolver"
+      - "traefik.http.services.eaterplatform.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+networks:
+  traefik_network:
+    external: true
+    name: ${TRAEFIK_NETWORK_NAME:-traefik_default}

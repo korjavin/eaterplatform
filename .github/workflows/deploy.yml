@@ -1,0 +1,76 @@
+name: Deploy Eater Platformer
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d70bba05f1fbf2224d75873e0f1d430028e96643 # v3.3.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@0d22f1112566b3d45d8b89d9b9368c78c80a221f # v3.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@ca58973455a0b6e94df6701db5017e88339478fa # v6.1.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update Deploy Branch
+        env:
+          GITHUB_REPO_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO_NAME: ${{ github.event.repository.name }}
+          GITHUB_COMMIT_SHA: ${{ github.sha }}
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          # Fetch all branches to ensure we can switch
+          git fetch origin
+          
+          # Check out deploy branch, create it if it doesn't exist
+          if git show-ref --quiet refs/remotes/origin/deploy; then
+            git checkout deploy
+            git reset --hard origin/master
+          else
+            git checkout -b deploy
+          fi
+          
+          # Replace image tag in docker-compose.yml using env variables to prevent injection
+          IMAGE_NAME="ghcr.io/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}"
+          sed -i "s|image: ${IMAGE_NAME}:latest|image: ${IMAGE_NAME}:${GITHUB_COMMIT_SHA}|g" docker-compose.yml
+          
+          git add docker-compose.yml
+          git commit -m "deploy: update image to tag ${GITHUB_COMMIT_SHA}"
+          git push origin deploy --force
+
+      - name: Trigger Portainer Redeploy Webhook
+        uses: distributhor/workflow-webhook@2381f0e9c7b6bf061fb1405bd0804b8706116369 # v3.0.8
+        with:
+          webhook_url: ${{ secrets.PORTAINER_REDEPLOY_HOOK }}
+          webhook_secret: "trigger"
