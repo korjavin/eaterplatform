@@ -679,24 +679,101 @@ function levelComplete() {
 }
 
 // Rendering
+function drawTree(x, y, scale = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 4;
+
+  ctx.fillStyle = '#8b5a2b';
+  ctx.beginPath();
+  ctx.moveTo(-10, 58);
+  ctx.lineTo(-7, 10);
+  ctx.quadraticCurveTo(0, 4, 7, 10);
+  ctx.lineTo(10, 58);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#2fb65d';
+  ctx.beginPath();
+  ctx.moveTo(-31, 17);
+  ctx.bezierCurveTo(-55, 5, -44, -27, -18, -24);
+  ctx.bezierCurveTo(-12, -52, 27, -54, 34, -23);
+  ctx.bezierCurveTo(61, -22, 63, 15, 37, 21);
+  ctx.bezierCurveTo(26, 45, -13, 45, -22, 24);
+  ctx.bezierCurveTo(-26, 23, -29, 21, -31, 17);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#74d66d';
+  ctx.beginPath();
+  ctx.arc(-9, -17, 8, 0, Math.PI * 2);
+  ctx.arc(18, 2, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawComicBackground() {
+  ctx.fillStyle = '#a5d8ff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#fff4a8';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(70, 65, 32, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#8fda62';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(-20, 320);
+  ctx.quadraticCurveTo(120, 230, 285, 306);
+  ctx.quadraticCurveTo(435, 372, 610, 287);
+  ctx.quadraticCurveTo(720, 235, 840, 305);
+  ctx.lineTo(840, canvas.height);
+  ctx.lineTo(-20, canvas.height);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#62c950';
+  ctx.beginPath();
+  ctx.moveTo(-20, 355);
+  ctx.quadraticCurveTo(180, 312, 372, 352);
+  ctx.quadraticCurveTo(575, 392, 840, 334);
+  ctx.lineTo(840, canvas.height);
+  ctx.lineTo(-20, canvas.height);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  drawTree(118, 260, 0.9);
+  drawTree(690, 235, 1.05);
+  drawTree(525, 292, 0.7);
+
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 2;
+  for (let x = 18; x < canvas.width; x += 28) {
+    const y = 360 + Math.sin(x * 0.05) * 10;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + 3, y - 10, x + 8, y - 18);
+    ctx.stroke();
+  }
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Draw Background Grid
-  ctx.strokeStyle = '#12161f';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < canvas.width; x += 40) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-    ctx.stroke();
-  }
-  for (let y = 0; y < canvas.height; y += 40) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
-  }
+  drawComicBackground();
 
   // Draw Portal
   if (portal.active) {
