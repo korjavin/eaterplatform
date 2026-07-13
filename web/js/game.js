@@ -326,7 +326,7 @@ const LEVELS = {
     enemies: [
       { x: 250, y: 205, width: 20, height: 15, vx: 1.2, range: 120, startX: 250 },
       { x: 450, y: 125, width: 20, height: 15, vx: 1.8, range: 120, startX: 450 },
-      { x: 50, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 50 }
+      { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 150 }
     ],
     portal: { x: 50, y: 240, width: 40, height: 60, active: false }
   }
@@ -591,6 +591,7 @@ function resetGame() {
 function resetPlayer() {
   player.x = 50;
   player.y = 300;
+  player.radius = 15;
   player.vx = 0;
   player.vy = 0;
   player.grounded = false;
@@ -598,7 +599,7 @@ function resetPlayer() {
 
 function updateHUD() {
   scoreVal.textContent = String(score).padStart(4, '0');
-  livesVal.textContent = '❤'.repeat(lives);
+  livesVal.textContent = '❤'.repeat(Math.max(0, lives));
   levelVal.textContent = level;
 }
 
@@ -719,6 +720,7 @@ function update() {
       const distance = Math.sqrt(dx * dx + dy * dy);
       if (distance < player.radius + 6) {
         dot.collected = true;
+        player.radius *= 1.10;
         score += 100;
         soundEffects.playEatSound();
         updateHUD();
@@ -752,8 +754,10 @@ function update() {
       updateHUD();
       if (lives <= 0) {
         gameOver();
+        break;
       } else {
         resetPlayer();
+        break;
       }
     }
   }
@@ -943,34 +947,40 @@ function draw() {
   }
 
   // Draw Player (Eater) - Blocky green monster matching design draft
-  const mouthHeight = 12 * (mouthAngle / 0.25);
-  const mouthCenterY = player.y - 3;
+  const scale = player.radius / 15;
+  const mouthHeight = 12 * scale * (mouthAngle / 0.25);
+  const mouthCenterY = player.y - player.radius * 0.2;
   const upperCeilingY = mouthCenterY - mouthHeight / 2;
   const lowerFloorY = mouthCenterY + mouthHeight / 2;
+  const bodyLeft = player.x - player.radius;
+  const bodyRight = player.x + player.radius;
+  const bodyTop = player.y - player.radius;
+  const bodyBottom = player.y + player.radius * 0.6;
+  const mouthBackOffset = 2 * scale;
 
   // Outer green body path with cutout mouth gap
   ctx.fillStyle = '#3da842';
   ctx.beginPath();
   if (!player.facingLeft) {
     // Facing Right
-    ctx.moveTo(player.x - 15, player.y - 15); // Top-left
-    ctx.lineTo(player.x + 15, player.y - 15); // Top-right
-    ctx.lineTo(player.x + 15, upperCeilingY);  // Down to mouth top
-    ctx.lineTo(player.x - 2, upperCeilingY);   // In to mouth back
-    ctx.lineTo(player.x - 2, lowerFloorY);     // Down to mouth bottom
-    ctx.lineTo(player.x + 15, lowerFloorY);    // Out to mouth bottom
-    ctx.lineTo(player.x + 15, player.y + 9);   // Down to bottom-right
-    ctx.lineTo(player.x - 15, player.y + 9);   // Left to bottom-left
+    ctx.moveTo(bodyLeft, bodyTop); // Top-left
+    ctx.lineTo(bodyRight, bodyTop); // Top-right
+    ctx.lineTo(bodyRight, upperCeilingY);  // Down to mouth top
+    ctx.lineTo(player.x - mouthBackOffset, upperCeilingY);   // In to mouth back
+    ctx.lineTo(player.x - mouthBackOffset, lowerFloorY);     // Down to mouth bottom
+    ctx.lineTo(bodyRight, lowerFloorY);    // Out to mouth bottom
+    ctx.lineTo(bodyRight, bodyBottom);   // Down to bottom-right
+    ctx.lineTo(bodyLeft, bodyBottom);   // Left to bottom-left
   } else {
     // Facing Left
-    ctx.moveTo(player.x + 15, player.y - 15); // Top-right
-    ctx.lineTo(player.x - 15, player.y - 15); // Top-left
-    ctx.lineTo(player.x - 15, upperCeilingY);  // Down to mouth top
-    ctx.lineTo(player.x + 2, upperCeilingY);   // In to mouth back
-    ctx.lineTo(player.x + 2, lowerFloorY);     // Down to mouth bottom
-    ctx.lineTo(player.x - 15, lowerFloorY);    // Out to mouth bottom
-    ctx.lineTo(player.x - 15, player.y + 9);   // Down to bottom-left
-    ctx.lineTo(player.x + 15, player.y + 9);   // Right to bottom-right
+    ctx.moveTo(bodyRight, bodyTop); // Top-right
+    ctx.lineTo(bodyLeft, bodyTop); // Top-left
+    ctx.lineTo(bodyLeft, upperCeilingY);  // Down to mouth top
+    ctx.lineTo(player.x + mouthBackOffset, upperCeilingY);   // In to mouth back
+    ctx.lineTo(player.x + mouthBackOffset, lowerFloorY);     // Down to mouth bottom
+    ctx.lineTo(bodyLeft, lowerFloorY);    // Out to mouth bottom
+    ctx.lineTo(bodyLeft, bodyBottom);   // Down to bottom-left
+    ctx.lineTo(bodyRight, bodyBottom);   // Right to bottom-right
   }
   ctx.closePath();
   ctx.fill();
@@ -978,99 +988,99 @@ function draw() {
   // Draw Tongue (red shape at back wall)
   ctx.fillStyle = '#ff3366';
   ctx.beginPath();
-  const tongueHeight = Math.min(6, mouthHeight * 0.6);
+  const tongueHeight = Math.min(6 * scale, mouthHeight * 0.6);
   if (!player.facingLeft) {
-    ctx.moveTo(player.x - 2, mouthCenterY - tongueHeight / 2);
-    ctx.quadraticCurveTo(player.x + 3, mouthCenterY, player.x - 2, mouthCenterY + tongueHeight / 2);
+    ctx.moveTo(player.x - mouthBackOffset, mouthCenterY - tongueHeight / 2);
+    ctx.quadraticCurveTo(player.x + 3 * scale, mouthCenterY, player.x - mouthBackOffset, mouthCenterY + tongueHeight / 2);
   } else {
-    ctx.moveTo(player.x + 2, mouthCenterY - tongueHeight / 2);
-    ctx.quadraticCurveTo(player.x - 3, mouthCenterY, player.x + 2, mouthCenterY + tongueHeight / 2);
+    ctx.moveTo(player.x + mouthBackOffset, mouthCenterY - tongueHeight / 2);
+    ctx.quadraticCurveTo(player.x - 3 * scale, mouthCenterY, player.x + mouthBackOffset, mouthCenterY + tongueHeight / 2);
   }
   ctx.fill();
 
   // Draw Teeth (yellow small triangular teeth inside the mouth gap)
-  const toothHeight = Math.min(3, mouthHeight / 2);
+  const toothHeight = Math.min(3 * scale, mouthHeight / 2);
   ctx.fillStyle = '#f3ca20';
   if (!player.facingLeft) {
     // Upper teeth pointing down
     ctx.beginPath();
-    ctx.moveTo(player.x + 2, upperCeilingY);
-    ctx.lineTo(player.x + 4.5, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x + 7, upperCeilingY);
-    ctx.moveTo(player.x + 9, upperCeilingY);
-    ctx.lineTo(player.x + 11.5, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x + 14, upperCeilingY);
+    ctx.moveTo(player.x + 2 * scale, upperCeilingY);
+    ctx.lineTo(player.x + 4.5 * scale, upperCeilingY + toothHeight);
+    ctx.lineTo(player.x + 7 * scale, upperCeilingY);
+    ctx.moveTo(player.x + 9 * scale, upperCeilingY);
+    ctx.lineTo(player.x + 11.5 * scale, upperCeilingY + toothHeight);
+    ctx.lineTo(player.x + 14 * scale, upperCeilingY);
     ctx.fill();
 
     // Lower teeth pointing up
     ctx.beginPath();
-    ctx.moveTo(player.x + 2, lowerFloorY);
-    ctx.lineTo(player.x + 4.5, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x + 7, lowerFloorY);
-    ctx.moveTo(player.x + 9, lowerFloorY);
-    ctx.lineTo(player.x + 11.5, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x + 14, lowerFloorY);
+    ctx.moveTo(player.x + 2 * scale, lowerFloorY);
+    ctx.lineTo(player.x + 4.5 * scale, lowerFloorY - toothHeight);
+    ctx.lineTo(player.x + 7 * scale, lowerFloorY);
+    ctx.moveTo(player.x + 9 * scale, lowerFloorY);
+    ctx.lineTo(player.x + 11.5 * scale, lowerFloorY - toothHeight);
+    ctx.lineTo(player.x + 14 * scale, lowerFloorY);
     ctx.fill();
   } else {
     // Upper teeth pointing down
     ctx.beginPath();
-    ctx.moveTo(player.x - 7, upperCeilingY);
-    ctx.lineTo(player.x - 4.5, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x - 2, upperCeilingY);
-    ctx.moveTo(player.x - 14, upperCeilingY);
-    ctx.lineTo(player.x - 11.5, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x - 9, upperCeilingY);
+    ctx.moveTo(player.x - 7 * scale, upperCeilingY);
+    ctx.lineTo(player.x - 4.5 * scale, upperCeilingY + toothHeight);
+    ctx.lineTo(player.x - 2 * scale, upperCeilingY);
+    ctx.moveTo(player.x - 14 * scale, upperCeilingY);
+    ctx.lineTo(player.x - 11.5 * scale, upperCeilingY + toothHeight);
+    ctx.lineTo(player.x - 9 * scale, upperCeilingY);
     ctx.fill();
 
     // Lower teeth pointing up
     ctx.beginPath();
-    ctx.moveTo(player.x - 7, lowerFloorY);
-    ctx.lineTo(player.x - 4.5, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x - 2, lowerFloorY);
-    ctx.moveTo(player.x - 14, lowerFloorY);
-    ctx.lineTo(player.x - 11.5, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x - 9, lowerFloorY);
+    ctx.moveTo(player.x - 7 * scale, lowerFloorY);
+    ctx.lineTo(player.x - 4.5 * scale, lowerFloorY - toothHeight);
+    ctx.lineTo(player.x - 2 * scale, lowerFloorY);
+    ctx.moveTo(player.x - 14 * scale, lowerFloorY);
+    ctx.lineTo(player.x - 11.5 * scale, lowerFloorY - toothHeight);
+    ctx.lineTo(player.x - 9 * scale, lowerFloorY);
     ctx.fill();
   }
 
   // Draw Eye (white circle + black pupil)
-  const eyeX = player.facingLeft ? (player.x + 7) : (player.x - 7);
-  const eyeY = player.y - 7;
+  const eyeX = player.facingLeft ? (player.x + 7 * scale) : (player.x - 7 * scale);
+  const eyeY = player.y - 7 * scale;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.arc(eyeX, eyeY, 4.5, 0, Math.PI * 2);
+  ctx.arc(eyeX, eyeY, 4.5 * scale, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#000000';
   ctx.beginPath();
-  ctx.arc(eyeX, eyeY, 1.5, 0, Math.PI * 2);
+  ctx.arc(eyeX, eyeY, 1.5 * scale, 0, Math.PI * 2);
   ctx.fill();
 
   // Draw Cap (red dome on top of the head)
   ctx.fillStyle = '#ff3333';
   ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 1.5 * scale;
   ctx.beginPath();
-  ctx.arc(player.x, player.y - 15, 5, Math.PI, 0);
+  ctx.arc(player.x, player.y - player.radius, 5 * scale, Math.PI, 0);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
 
   // Draw Legs (two simple black stick legs with horizontal foot lines)
   ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2 * scale;
   ctx.beginPath();
   // Leg 1
-  ctx.moveTo(player.x - 5, player.y + 9);
-  ctx.lineTo(player.x - 5, player.y + 15);
-  ctx.moveTo(player.x - 6.5, player.y + 15);
-  ctx.lineTo(player.x - 3.5, player.y + 15);
+  ctx.moveTo(player.x - 5 * scale, bodyBottom);
+  ctx.lineTo(player.x - 5 * scale, player.y + player.radius);
+  ctx.moveTo(player.x - 6.5 * scale, player.y + player.radius);
+  ctx.lineTo(player.x - 3.5 * scale, player.y + player.radius);
 
   // Leg 2
-  ctx.moveTo(player.x + 5, player.y + 9);
-  ctx.lineTo(player.x + 5, player.y + 15);
-  ctx.moveTo(player.x + 3.5, player.y + 15);
-  ctx.lineTo(player.x + 6.5, player.y + 15);
+  ctx.moveTo(player.x + 5 * scale, bodyBottom);
+  ctx.lineTo(player.x + 5 * scale, player.y + player.radius);
+  ctx.moveTo(player.x + 3.5 * scale, player.y + player.radius);
+  ctx.lineTo(player.x + 6.5 * scale, player.y + player.radius);
   ctx.stroke();
 }
 
