@@ -309,6 +309,7 @@ const SMALL_DOT_RADIUS = 6;
 const BIG_DOT_RADIUS = 12;
 const BIG_DOT_MIN_PLAYER_RADIUS = 18;
 const MIN_PLAYER_RADIUS = 10;
+const INVINCIBILITY_FRAMES = 90;
 
 // Player configuration
 const player = {
@@ -320,6 +321,7 @@ const player = {
   speed: BASE_PLAYER_SPEED,
   jumpForce: BASE_JUMP_FORCE,
   speedBoostTimer: 0,
+  invincibleTimer: 0,
   boostedJumpActive: false,
   grounded: false,
   facingLeft: false
@@ -383,7 +385,7 @@ const LEVELS = {
     enemies: [
       { x: 250, y: 205, width: 20, height: 15, vx: 1.2, range: 120, startX: 250 },
       { x: 450, y: 125, width: 20, height: 15, vx: 1.8, range: 120, startX: 450 },
-      { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 150 }
+      { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 70, startX: 150 }
     ],
     portal: { x: 50, y: 240, width: 40, height: 60, active: false }
   },
@@ -917,6 +919,7 @@ function resetPlayer(preserveRadius = false) {
   player.speed = BASE_PLAYER_SPEED;
   player.jumpForce = BASE_JUMP_FORCE;
   player.speedBoostTimer = 0;
+  player.invincibleTimer = INVINCIBILITY_FRAMES;
   player.boostedJumpActive = false;
   player.grounded = false;
 }
@@ -1036,6 +1039,9 @@ function update() {
   if (boosted) {
     player.speedBoostTimer--;
   }
+  if (player.invincibleTimer > 0) {
+    player.invincibleTimer--;
+  }
 
   // Horizontal Movement
   if (keys.ArrowRight || keys.KeyD) {
@@ -1128,6 +1134,8 @@ function update() {
     if (Math.abs(enemy.x - enemy.startX) > enemy.range) {
       enemy.vx = -enemy.vx;
     }
+
+    if (player.invincibleTimer > 0) continue;
 
     // Collision with player
     const playerLeft = player.x - player.radius;
@@ -1366,6 +1374,11 @@ function draw() {
   const bodyBottom = player.y + player.radius * 0.6;
   const mouthBackOffset = 2 * scale;
 
+  ctx.save();
+  if (player.invincibleTimer > 0) {
+    ctx.globalAlpha = 0.4 + 0.3 * Math.sin(performance.now() / 60);
+  }
+
   if (player.speedBoostTimer > 0) {
     const boostPulse = 0.35 + Math.sin(performance.now() / 90) * 0.12;
     ctx.save();
@@ -1516,6 +1529,7 @@ function draw() {
   ctx.moveTo(player.x + 3.5 * scale, player.y + player.radius);
   ctx.lineTo(player.x + 6.5 * scale, player.y + player.radius);
   ctx.stroke();
+  ctx.restore();
 }
 
 function gameLoop() {
