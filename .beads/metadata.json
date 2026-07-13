@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "eaterplatform",
+  "project_id": "63c6cec1-09b1-4814-98ad-89bcd0d3bb36"
+}
