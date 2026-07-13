@@ -991,6 +991,7 @@ function resetPlayer(preserveRadius = false) {
   player.invincibleTimer = INVINCIBILITY_FRAMES;
   player.boostedJumpActive = false;
   player.grounded = false;
+  ensureLevelSolvable();
 }
 
 function updateHUD() {
@@ -1019,6 +1020,7 @@ function triggerSizeReset() {
 
   lives -= 0.5;
   player.radius = 15;
+  ensureLevelSolvable();
   soundEffects.playSizeResetSound();
   updateHUD();
   if (lives <= 0) {
@@ -1038,6 +1040,35 @@ function getDotColor(dot) {
   if (dot.red) return '#e74c3c';
   if (dot.green) return '#2ecc71';
   return dot.big ? '#f39c12' : '#f3ca20';
+}
+
+function isStandardDot(dot) {
+  return !dot.big && !dot.red && !dot.green;
+}
+
+function shuffleDots(items) {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+}
+
+function ensureLevelSolvable() {
+  const hasUncollectedBig = dots.some(dot => !dot.collected && dot.big);
+  if (!hasUncollectedBig || player.radius >= BIG_DOT_MIN_PLAYER_RADIUS) return;
+
+  const uncollectedStandardCount = dots.filter(dot => !dot.collected && isStandardDot(dot)).length;
+  const maxPossibleRadius = player.radius * Math.pow(1.05, uncollectedStandardCount);
+  if (maxPossibleRadius >= BIG_DOT_MIN_PLAYER_RADIUS) return;
+
+  const targetCount = Math.ceil(Math.log(BIG_DOT_MIN_PLAYER_RADIUS / player.radius) / Math.log(1.05));
+  const restoreNeeded = targetCount - uncollectedStandardCount;
+  const collectedStandard = dots.filter(dot => dot.collected && isStandardDot(dot));
+  shuffleDots(collectedStandard);
+
+  for (const dot of collectedStandard.slice(0, restoreNeeded)) {
+    dot.collected = false;
+  }
 }
 
 function collectDot(dot) {
