@@ -34,10 +34,22 @@ const TRANSLATIONS = {
     victory: 'Victory!',
     victory_message: 'Congratulations! You beat all levels with a score of {score}!',
     level_complete: 'Level Complete!',
-    level_complete_message: 'Proceeding to Level {level}. Great job!',
+    level_complete_message: 'Proceeding to Level {level} ({rank}). Great job!',
     score: 'Score',
     lives: 'Lives',
     level: 'Level',
+    level_hud_value: '{level} ({rank})',
+    rank_1: 'Beginner',
+    rank_2: 'Dot Hunter',
+    rank_3: 'Apprentice',
+    rank_4: 'Senior',
+    rank_5: 'Gravity Defier',
+    rank_6: 'Milord',
+    rank_7: 'Portal Weaver',
+    rank_8: 'Speedrunner',
+    rank_9: 'Green Legend',
+    rank_10: 'Ascended Eater',
+    rank_11: 'Chomping Deity',
     how_to_play: 'How to Play',
     move_instruction: 'Use ← → or A D to Move',
     jump_instruction: 'Press Space or W to Jump',
@@ -70,10 +82,22 @@ const TRANSLATIONS = {
     victory: 'Sieg!',
     victory_message: 'Glückwunsch! Du hast alle Level mit {score} Punkten geschafft!',
     level_complete: 'Level geschafft!',
-    level_complete_message: 'Weiter zu Level {level}. Gut gemacht!',
+    level_complete_message: 'Weiter zu Level {level} ({rank}). Gut gemacht!',
     score: 'Punkte',
     lives: 'Leben',
     level: 'Level',
+    level_hud_value: '{level} ({rank})',
+    rank_1: 'Anfänger',
+    rank_2: 'Punktejäger',
+    rank_3: 'Lehrling',
+    rank_4: 'Senior',
+    rank_5: 'Schwerkraftbezwinger',
+    rank_6: 'Milord',
+    rank_7: 'Portalweber',
+    rank_8: 'Speedrunner',
+    rank_9: 'Grüne Legende',
+    rank_10: 'Aufgestiegener Eater',
+    rank_11: 'Kauende Gottheit',
     how_to_play: 'Spielanleitung',
     move_instruction: 'Nutze ← → oder A D zum Bewegen',
     jump_instruction: 'Drücke Leertaste oder W zum Springen',
@@ -106,10 +130,22 @@ const TRANSLATIONS = {
     victory: 'Победа!',
     victory_message: 'Поздравляем! Ты прошел все уровни со счетом {score}!',
     level_complete: 'Уровень пройден!',
-    level_complete_message: 'Переход на уровень {level}. Отличная работа!',
+    level_complete_message: 'Переход на уровень {level} ({rank}). Отличная работа!',
     score: 'Счет',
     lives: 'Жизни',
     level: 'Уровень',
+    level_hud_value: '{level} ({rank})',
+    rank_1: 'Новичок',
+    rank_2: 'Охотник за точками',
+    rank_3: 'Ученик',
+    rank_4: 'Старший',
+    rank_5: 'Покоритель гравитации',
+    rank_6: 'Милорд',
+    rank_7: 'Ткач порталов',
+    rank_8: 'Спидраннер',
+    rank_9: 'Зеленая легенда',
+    rank_10: 'Вознесенный едок',
+    rank_11: 'Жующее божество',
     how_to_play: 'Как играть',
     move_instruction: 'Используй ← → или A D для движения',
     jump_instruction: 'Нажми Пробел или W для прыжка',
@@ -332,6 +368,205 @@ const LEVELS = {
       { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 150 }
     ],
     portal: { x: 50, y: 240, width: 40, height: 60, active: false }
+  },
+  3: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 100, y: 300, width: 120, height: 15 },
+      { x: 300, y: 220, width: 120, height: 15 },
+      { x: 500, y: 140, width: 120, height: 15 },
+      { x: 200, y: 110, width: 120, height: 15 }
+    ],
+    dots: [
+      { x: 160, y: 270, collected: false },
+      { x: 360, y: 190, collected: false },
+      { x: 560, y: 110, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 260, y: 80, collected: false }
+    ],
+    enemies: [
+      { x: 300, y: 205, width: 20, height: 15, vx: 1.5, range: 100, startX: 300 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  4: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 50, y: 310, width: 120, height: 15 },
+      { x: 220, y: 240, width: 120, height: 15 },
+      { x: 390, y: 170, width: 120, height: 15 },
+      { x: 560, y: 240, width: 120, height: 15 },
+      { x: 700, y: 310, width: 80, height: 15 }
+    ],
+    dots: [
+      { x: 110, y: 280, collected: false },
+      { x: 280, y: 210, collected: false },
+      { x: 450, y: 140, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 620, y: 210, collected: false },
+      { x: 740, y: 280, collected: false }
+    ],
+    enemies: [
+      { x: 220, y: 225, width: 20, height: 15, vx: 1.6, range: 100, startX: 220 },
+      { x: 560, y: 225, width: 20, height: 15, vx: -1.6, range: 100, startX: 560 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  5: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 150, y: 300, width: 150, height: 15 },
+      { x: 400, y: 300, width: 150, height: 15 },
+      { x: 275, y: 210, width: 150, height: 15 },
+      { x: 275, y: 120, width: 150, height: 15 }
+    ],
+    dots: [
+      { x: 225, y: 270, collected: false },
+      { x: 475, y: 270, collected: false },
+      { x: 350, y: 180, collected: false },
+      { x: 350, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS }
+    ],
+    enemies: [
+      { x: 150, y: 285, width: 20, height: 15, vx: 1.4, range: 120, startX: 150 },
+      { x: 400, y: 285, width: 20, height: 15, vx: -1.4, range: 120, startX: 400 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  6: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 50, y: 290, width: 120, height: 15 },
+      { x: 200, y: 200, width: 120, height: 15 },
+      { x: 350, y: 290, width: 120, height: 15 },
+      { x: 500, y: 200, width: 120, height: 15 },
+      { x: 650, y: 290, width: 120, height: 15 }
+    ],
+    dots: [
+      { x: 110, y: 260, collected: false },
+      { x: 260, y: 170, collected: false },
+      { x: 410, y: 260, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 560, y: 170, collected: false },
+      { x: 710, y: 260, collected: false }
+    ],
+    enemies: [
+      { x: 200, y: 185, width: 20, height: 15, vx: 1.8, range: 100, startX: 200 },
+      { x: 500, y: 185, width: 20, height: 15, vx: -1.8, range: 100, startX: 500 }
+    ],
+    portal: { x: 20, y: 320, width: 40, height: 60, active: false }
+  },
+  7: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 100, y: 310, width: 100, height: 15 },
+      { x: 250, y: 240, width: 100, height: 15 },
+      { x: 400, y: 170, width: 100, height: 15 },
+      { x: 550, y: 240, width: 100, height: 15 },
+      { x: 700, y: 310, width: 100, height: 15 },
+      { x: 250, y: 100, width: 300, height: 15 }
+    ],
+    dots: [
+      { x: 150, y: 280, collected: false },
+      { x: 300, y: 210, collected: false },
+      { x: 450, y: 140, collected: false },
+      { x: 600, y: 210, collected: false },
+      { x: 750, y: 280, collected: false },
+      { x: 400, y: 70, collected: false, big: true, radius: BIG_DOT_RADIUS }
+    ],
+    enemies: [
+      { x: 250, y: 85, width: 20, height: 15, vx: 2, range: 260, startX: 250 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  8: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 50, y: 300, width: 80, height: 15 },
+      { x: 150, y: 220, width: 80, height: 15 },
+      { x: 250, y: 150, width: 80, height: 15 },
+      { x: 350, y: 150, width: 80, height: 15 },
+      { x: 450, y: 220, width: 80, height: 15 },
+      { x: 550, y: 300, width: 80, height: 15 },
+      { x: 650, y: 220, width: 80, height: 15 }
+    ],
+    dots: [
+      { x: 90, y: 270, collected: false },
+      { x: 190, y: 190, collected: false },
+      { x: 290, y: 120, collected: false },
+      { x: 390, y: 120, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 490, y: 190, collected: false },
+      { x: 590, y: 270, collected: false },
+      { x: 690, y: 190, collected: false }
+    ],
+    enemies: [
+      { x: 350, y: 135, width: 20, height: 15, vx: 1.2, range: 60, startX: 350 }
+    ],
+    portal: { x: 740, y: 320, width: 40, height: 60, active: false }
+  },
+  9: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 100, y: 300, width: 600, height: 15 },
+      { x: 200, y: 210, width: 400, height: 15 },
+      { x: 300, y: 120, width: 200, height: 15 }
+    ],
+    dots: [
+      { x: 150, y: 270, collected: false },
+      { x: 650, y: 270, collected: false },
+      { x: 250, y: 180, collected: false },
+      { x: 550, y: 180, collected: false },
+      { x: 350, y: 90, collected: false },
+      { x: 450, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS }
+    ],
+    enemies: [
+      { x: 200, y: 195, width: 20, height: 15, vx: 2.2, range: 360, startX: 200 },
+      { x: 300, y: 105, width: 20, height: 15, vx: -1.8, range: 160, startX: 300 }
+    ],
+    portal: { x: 50, y: 320, width: 40, height: 60, active: false }
+  },
+  10: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 50, y: 300, width: 100, height: 15 },
+      { x: 200, y: 230, width: 100, height: 15 },
+      { x: 350, y: 160, width: 100, height: 15 },
+      { x: 500, y: 230, width: 100, height: 15 },
+      { x: 650, y: 300, width: 100, height: 15 },
+      { x: 350, y: 80, width: 100, height: 15 }
+    ],
+    dots: [
+      { x: 100, y: 270, collected: false },
+      { x: 250, y: 200, collected: false },
+      { x: 400, y: 130, collected: false },
+      { x: 550, y: 200, collected: false },
+      { x: 700, y: 270, collected: false },
+      { x: 400, y: 50, collected: false, big: true, radius: BIG_DOT_RADIUS }
+    ],
+    enemies: [
+      { x: 200, y: 215, width: 20, height: 15, vx: 1.5, range: 80, startX: 200 },
+      { x: 500, y: 215, width: 20, height: 15, vx: -1.5, range: 80, startX: 500 }
+    ],
+    portal: { x: 740, y: 320, width: 40, height: 60, active: false }
+  },
+  11: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 50, y: 310, width: 700, height: 15 },
+      { x: 100, y: 230, width: 600, height: 15 },
+      { x: 150, y: 150, width: 500, height: 15 },
+      { x: 200, y: 70, width: 400, height: 15 }
+    ],
+    dots: [
+      { x: 100, y: 280, collected: false },
+      { x: 700, y: 280, collected: false },
+      { x: 150, y: 200, collected: false },
+      { x: 650, y: 200, collected: false },
+      { x: 200, y: 120, collected: false },
+      { x: 600, y: 120, collected: false },
+      { x: 400, y: 40, collected: false, big: true, radius: BIG_DOT_RADIUS }
+    ],
+    enemies: [
+      { x: 100, y: 215, width: 20, height: 15, vx: 2.5, range: 560, startX: 100 },
+      { x: 150, y: 135, width: 20, height: 15, vx: -2.0, range: 460, startX: 150 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   }
 };
 
@@ -391,6 +626,7 @@ function applyLanguage(lang) {
   });
   if (languageSelect.value !== lang) languageSelect.value = lang;
   saveSettings();
+  updateHUD();
 }
 
 function syncSettingsControls() {
@@ -603,7 +839,11 @@ function resetPlayer() {
 function updateHUD() {
   scoreVal.textContent = String(score).padStart(4, '0');
   livesVal.textContent = '❤'.repeat(Math.max(0, lives));
-  levelVal.textContent = level;
+  setTranslatedText(levelVal, 'level_hud_value', { level, rank: getRankName(level) });
+}
+
+function getRankName(levelNum) {
+  return t(`rank_${levelNum}`);
 }
 
 function getDotRadius(dot) {
@@ -812,7 +1052,10 @@ function levelComplete() {
     return;
   }
   setTranslatedText(overlay.querySelector('h2'), 'level_complete');
-  setTranslatedText(overlay.querySelector('p'), 'level_complete_message', { level });
+  setTranslatedText(overlay.querySelector('p'), 'level_complete_message', {
+    level,
+    rank: getRankName(level)
+  });
   setTranslatedText(overlay.querySelector('button'), 'start_level', { level });
   overlay.classList.remove('hidden');
 }
