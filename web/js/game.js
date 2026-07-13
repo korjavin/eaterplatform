@@ -597,6 +597,64 @@ const LEVELS = {
   }
 };
 
+const LEVEL_THEMES = {
+  1: {
+    skyStart: '#a5f3fc', skyEnd: '#e0f2fe',
+    hillsBack: '#bbf7d0', hillsMid: '#86efac', hillsFore: '#4ade80',
+    platformFill: '#1e1b4b', platformStroke: '#312e81'
+  },
+  2: {
+    skyStart: '#0f172a', skyEnd: '#1e1b4b',
+    hillsBack: '#1e293b', hillsMid: '#334155', hillsFore: '#475569',
+    platformFill: '#020617', platformStroke: '#0f172a'
+  },
+  3: {
+    skyStart: '#ecfdf5', skyEnd: '#d1fae5',
+    hillsBack: '#15803d', hillsMid: '#166534', hillsFore: '#14532d',
+    platformFill: '#451a03', platformStroke: '#7c2d12'
+  },
+  4: {
+    skyStart: '#fef08a', skyEnd: '#fde047',
+    hillsBack: '#eab308', hillsMid: '#ca8a04', hillsFore: '#a16207',
+    platformFill: '#7c2d12', platformStroke: '#9a3412'
+  },
+  5: {
+    skyStart: '#064e3b', skyEnd: '#022c22',
+    hillsBack: '#047857', hillsMid: '#065f46', hillsFore: '#064e3b',
+    platformFill: '#1f2937', platformStroke: '#374151'
+  },
+  6: {
+    skyStart: '#311042', skyEnd: '#1e1b4b',
+    hillsBack: '#581c87', hillsMid: '#701a75', hillsFore: '#86198f',
+    platformFill: '#020617', platformStroke: '#3b0764'
+  },
+  7: {
+    skyStart: '#ecfeff', skyEnd: '#cffafe',
+    hillsBack: '#a5f3fc', hillsMid: '#67e8f9', hillsFore: '#22d3ee',
+    platformFill: '#1e293b', platformStroke: '#334155'
+  },
+  8: {
+    skyStart: '#450a0a', skyEnd: '#7f1d1d',
+    hillsBack: '#991b1b', hillsMid: '#b91c1c', hillsFore: '#dc2626',
+    platformFill: '#180202', platformStroke: '#3f0712'
+  },
+  9: {
+    skyStart: '#fdf2f8', skyEnd: '#fce7f3',
+    hillsBack: '#f472b6', hillsMid: '#ec4899', hillsFore: '#db2777',
+    platformFill: '#5b21b6', platformStroke: '#7c3aed'
+  },
+  10: {
+    skyStart: '#ffedd5', skyEnd: '#fed7aa',
+    hillsBack: '#ea580c', hillsMid: '#c2410c', hillsFore: '#9a3412',
+    platformFill: '#3f2305', platformStroke: '#543d2b'
+  },
+  11: {
+    skyStart: '#030712', skyEnd: '#0b0f19',
+    hillsBack: '#111827', hillsMid: '#1f2937', hillsFore: '#374151',
+    platformFill: '#000000', platformStroke: '#111827'
+  }
+};
+
 function loadSettings() {
   try {
     const stored = JSON.parse(localStorage.getItem('eater-settings') || '{}');
@@ -1227,7 +1285,7 @@ function levelComplete() {
 }
 
 // Rendering
-function drawTree(x, y, scale = 1) {
+function drawTree(x, y, scale = 1, theme = LEVEL_THEMES[1]) {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(scale, scale);
@@ -1246,7 +1304,7 @@ function drawTree(x, y, scale = 1) {
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = '#2fb65d';
+  ctx.fillStyle = theme.hillsFore;
   ctx.beginPath();
   ctx.moveTo(-31, 17);
   ctx.bezierCurveTo(-55, 5, -44, -27, -18, -24);
@@ -1258,7 +1316,7 @@ function drawTree(x, y, scale = 1) {
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = '#74d66d';
+  ctx.fillStyle = theme.hillsMid;
   ctx.beginPath();
   ctx.arc(-9, -17, 8, 0, Math.PI * 2);
   ctx.arc(18, 2, 7, 0, Math.PI * 2);
@@ -1267,8 +1325,11 @@ function drawTree(x, y, scale = 1) {
   ctx.restore();
 }
 
-function drawComicBackground() {
-  ctx.fillStyle = '#a5d8ff';
+function drawComicBackground(theme) {
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  skyGrad.addColorStop(0, theme.skyStart);
+  skyGrad.addColorStop(1, theme.skyEnd);
+  ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = '#fff4a8';
@@ -1279,7 +1340,7 @@ function drawComicBackground() {
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = '#8fda62';
+  ctx.fillStyle = theme.hillsBack;
   ctx.strokeStyle = '#111111';
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -1293,7 +1354,7 @@ function drawComicBackground() {
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = '#62c950';
+  ctx.fillStyle = theme.hillsMid;
   ctx.beginPath();
   ctx.moveTo(-20, 355);
   ctx.quadraticCurveTo(180, 312, 372, 352);
@@ -1304,11 +1365,11 @@ function drawComicBackground() {
   ctx.fill();
   ctx.stroke();
 
-  drawTree(118, 260, 0.9);
-  drawTree(690, 235, 1.05);
-  drawTree(525, 292, 0.7);
+  drawTree(118, 260, 0.9, theme);
+  drawTree(690, 235, 1.05, theme);
+  drawTree(525, 292, 0.7, theme);
 
-  ctx.strokeStyle = '#111111';
+  ctx.strokeStyle = theme.hillsFore;
   ctx.lineWidth = 2;
   for (let x = 18; x < canvas.width; x += 28) {
     const y = 360 + Math.sin(x * 0.05) * 10;
@@ -1320,8 +1381,9 @@ function drawComicBackground() {
 }
 
 function draw() {
+  const theme = LEVEL_THEMES[level] || LEVEL_THEMES[1];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawComicBackground();
+  drawComicBackground(theme);
 
   // Draw Portal
   if (portal.active) {
@@ -1339,13 +1401,16 @@ function draw() {
   }
 
   // Draw Platforms
-  ctx.fillStyle = '#2f3b4c';
+  ctx.fillStyle = theme.platformFill;
+  ctx.strokeStyle = theme.platformStroke;
+  ctx.lineWidth = 2;
   for (const plat of platforms) {
     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+    ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
     // Draw top highlights
-    ctx.fillStyle = '#45f3ff';
+    ctx.fillStyle = theme.platformStroke;
     ctx.fillRect(plat.x, plat.y, plat.width, 2);
-    ctx.fillStyle = '#2f3b4c';
+    ctx.fillStyle = theme.platformFill;
   }
 
   // Draw Dots
