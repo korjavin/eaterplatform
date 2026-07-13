@@ -289,6 +289,7 @@ const soundEffects = new SoundEffects();
 // Game state
 let score = 0;
 let lives = 3;
+let levelStartLives = 3;
 let level = 1;
 let gameActive = false;
 let scoreSubmitted = false;
@@ -882,6 +883,7 @@ function submitCurrentScore() {
 
 function loadLevel(levelNum) {
   const lvlConfig = LEVELS[levelNum];
+  levelStartLives = lives;
   platforms = lvlConfig.platforms.map(p => ({ ...p }));
   dots = lvlConfig.dots.map(d => ({ ...d }));
   enemies = lvlConfig.enemies.map(e => ({ ...e }));
@@ -903,6 +905,7 @@ function gameVictory() {
 function resetGame() {
   score = 0;
   lives = 3;
+  levelStartLives = 3;
   level = 1;
   scoreSubmitted = false;
   loadLevel(level);
@@ -1198,7 +1201,9 @@ function levelComplete() {
     gameVictory();
     return;
   }
-  lives = Math.min(5, lives + 1);
+  const perfectRun = lives >= levelStartLives;
+  const reward = perfectRun ? 2 : 1;
+  lives = Math.min(5, lives + reward);
   updateHUD();
   setTranslatedText(overlay.querySelector('h2'), 'level_complete');
   setTranslatedText(overlay.querySelector('p'), 'level_complete_message', {
