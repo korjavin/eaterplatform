@@ -251,6 +251,10 @@ class SoundEffects {
     });
   }
 
+  playCheatSuccessSound() {
+    this.playTone(880, 1320, 0.4, 'sine', 0.08);
+  }
+
   startBackgroundMusic() {
     if (this.musicPlaying || !settings.sound) return;
     if (!this.initAudio()) return;
@@ -295,6 +299,7 @@ let gameActive = false;
 let scoreSubmitted = false;
 let mouthAngle = 0.2;
 let mouthClosing = false;
+let cheatBuffer = [];
 
 // Physics configuration
 const GRAVITY = 0.5;
@@ -311,6 +316,8 @@ const BIG_DOT_RADIUS = 12;
 const BIG_DOT_MIN_PLAYER_RADIUS = 18;
 const MIN_PLAYER_RADIUS = 10;
 const INVINCIBILITY_FRAMES = 90;
+const CHEAT_CODE = 'iddqd';
+const CHEAT_TIMEOUT_MS = 5000;
 
 // Player configuration
 const player = {
@@ -805,6 +812,7 @@ function configureMobileControls() {
 
 // Setup input listeners
 window.addEventListener('keydown', (e) => {
+  if (e.key.length === 1) handleCheatInput(e.key);
   if (e.code in keys) keys[e.code] = true;
   if (e.code === 'KeyR' && !e.repeat) {
     triggerSizeReset();
@@ -991,6 +999,19 @@ function updateHUD() {
   const hasHalfHeart = lives - fullHearts >= 0.5;
   livesVal.textContent = `${'❤'.repeat(fullHearts)}${hasHalfHeart ? '💔' : ''}`;
   setTranslatedText(levelVal, 'level_hud_value', { level, rank: getRankName(level) });
+}
+
+function handleCheatInput(keyChar) {
+  const now = Date.now();
+  cheatBuffer = cheatBuffer.filter(input => now - input.time <= CHEAT_TIMEOUT_MS);
+  cheatBuffer.push({ char: keyChar.toLowerCase(), time: now });
+
+  if (cheatBuffer.map(input => input.char).join('').endsWith(CHEAT_CODE)) {
+    lives = Math.min(5, lives + 3);
+    soundEffects.playCheatSuccessSound();
+    cheatBuffer = [];
+    updateHUD();
+  }
 }
 
 function triggerSizeReset() {
