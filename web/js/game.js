@@ -5,6 +5,7 @@ const overlay = document.getElementById('game-overlay');
 const scoreVal = document.getElementById('score-val');
 const livesVal = document.getElementById('lives-val');
 const levelVal = document.getElementById('level-val');
+const resetSizeBtn = document.getElementById('reset-size-btn');
 const playerNameField = document.getElementById('player-name-field');
 const playerNameInput = document.getElementById('player-name');
 const playerNameError = document.getElementById('player-name-error');
@@ -38,6 +39,7 @@ const TRANSLATIONS = {
     score: 'Score',
     lives: 'Lives',
     level: 'Level',
+    reset_size_btn: 'Reset Size (-0.5 ❤)',
     level_hud_value: '{level} ({rank})',
     rank_1: 'Beginner',
     rank_2: 'Dot Hunter',
@@ -86,6 +88,7 @@ const TRANSLATIONS = {
     score: 'Punkte',
     lives: 'Leben',
     level: 'Level',
+    reset_size_btn: 'Größe zurücksetzen (-0.5 ❤)',
     level_hud_value: '{level} ({rank})',
     rank_1: 'Anfänger',
     rank_2: 'Punktejäger',
@@ -134,6 +137,7 @@ const TRANSLATIONS = {
     score: 'Счет',
     lives: 'Жизни',
     level: 'Уровень',
+    reset_size_btn: 'Сбросить размер (-0.5 ❤)',
     level_hud_value: '{level} ({rank})',
     rank_1: 'Новичок',
     rank_2: 'Охотник за точками',
@@ -235,6 +239,10 @@ class SoundEffects {
 
   playDieSound() {
     this.playTone(400, 80, 0.35, 'sawtooth', 0.08);
+  }
+
+  playSizeResetSound() {
+    this.playTone(300, 150, 0.25, 'triangle', 0.07);
   }
 
   playLevelCompleteSound() {
@@ -688,6 +696,9 @@ function configureSettingsPanel() {
 // Setup input listeners
 window.addEventListener('keydown', (e) => {
   if (e.code in keys) keys[e.code] = true;
+  if (e.code === 'KeyR' && !e.repeat) {
+    triggerSizeReset();
+  }
   if (['ArrowUp', 'Space', 'KeyW'].includes(e.code) && gameActive) {
     e.preventDefault(); // Prevent page scroll
   }
@@ -717,6 +728,8 @@ startBtn.addEventListener('click', () => {
 playerNameInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') startBtn.click();
 });
+
+resetSizeBtn.addEventListener('click', triggerSizeReset);
 
 function getCookie(name) {
   const prefix = `${encodeURIComponent(name)}=`;
@@ -860,8 +873,22 @@ function resetPlayer(preserveRadius = false) {
 
 function updateHUD() {
   scoreVal.textContent = String(score).padStart(4, '0');
-  livesVal.textContent = '❤'.repeat(Math.max(0, lives));
+  const fullHearts = Math.max(0, Math.floor(lives));
+  const hasHalfHeart = lives - fullHearts >= 0.5;
+  livesVal.textContent = `${'❤'.repeat(fullHearts)}${hasHalfHeart ? '💔' : ''}`;
   setTranslatedText(levelVal, 'level_hud_value', { level, rank: getRankName(level) });
+}
+
+function triggerSizeReset() {
+  if (!gameActive) return;
+
+  lives -= 0.5;
+  player.radius = 15;
+  soundEffects.playSizeResetSound();
+  updateHUD();
+  if (lives <= 0) {
+    gameOver();
+  }
 }
 
 function getRankName(levelNum) {
