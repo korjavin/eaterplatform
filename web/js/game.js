@@ -133,6 +133,115 @@ const TRANSLATIONS = {
 
 const settings = loadSettings();
 
+class SoundEffects {
+  constructor() {
+    this.audioCtx = null;
+    this.musicTimer = null;
+    this.musicStep = 0;
+    this.musicPlaying = false;
+    this.musicPattern = [
+      261.63, 329.63, 392.00, 329.63,
+      293.66, 349.23, 440.00, 349.23,
+      329.63, 392.00, 493.88, 392.00,
+      261.63, 329.63, 392.00, 523.25
+    ];
+  }
+
+  initAudio() {
+    if (!settings.sound) return null;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+
+    if (!this.audioCtx) {
+      this.audioCtx = new AudioContextClass();
+    }
+    if (this.audioCtx.state === 'suspended') {
+      void this.audioCtx.resume();
+    }
+    return this.audioCtx;
+  }
+
+  playTone(freqStart, freqEnd, duration, type = 'sine', gainStart = 0.08, startAt = 0) {
+    if (!settings.sound) return;
+
+    const audioCtx = this.initAudio();
+    if (!audioCtx) return;
+
+    const oscillator = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const startTime = audioCtx.currentTime + startAt;
+    const endTime = startTime + duration;
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(freqStart, startTime);
+    if (freqStart > 0 && freqEnd > 0) {
+      oscillator.frequency.exponentialRampToValueAtTime(freqEnd, endTime);
+    } else {
+      oscillator.frequency.linearRampToValueAtTime(freqEnd, endTime);
+    }
+
+    gain.gain.setValueAtTime(gainStart, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, endTime);
+
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+    oscillator.start(startTime);
+    oscillator.stop(endTime + 0.02);
+  }
+
+  playJumpSound() {
+    this.playTone(150, 350, 0.12, 'triangle', 0.09);
+  }
+
+  playEatSound() {
+    this.playTone(500, 900, 0.08, 'sine', 0.06);
+  }
+
+  playDieSound() {
+    this.playTone(400, 80, 0.35, 'sawtooth', 0.08);
+  }
+
+  playLevelCompleteSound() {
+    [523.25, 659.25, 783.99, 1046.50].forEach((frequency, index) => {
+      this.playTone(frequency, frequency * 1.01, 0.1, 'triangle', 0.07, index * 0.09);
+    });
+  }
+
+  startBackgroundMusic() {
+    if (this.musicPlaying || !settings.sound) return;
+    if (!this.initAudio()) return;
+
+    this.musicPlaying = true;
+    this.scheduleMusicStep();
+  }
+
+  stopBackgroundMusic() {
+    this.musicPlaying = false;
+    if (this.musicTimer) {
+      clearTimeout(this.musicTimer);
+      this.musicTimer = null;
+    }
+  }
+
+  scheduleMusicStep() {
+    if (!this.musicPlaying || !settings.sound || !gameActive) {
+      this.stopBackgroundMusic();
+      return;
+    }
+
+    const melodyFrequency = this.musicPattern[this.musicStep % this.musicPattern.length];
+    const bassFrequency = melodyFrequency / 2;
+    this.playTone(melodyFrequency, melodyFrequency, 0.14, 'square', 0.018);
+    if (this.musicStep % 2 === 0) {
+      this.playTone(bassFrequency, bassFrequency, 0.24, 'triangle', 0.025);
+    }
+    this.musicStep++;
+    this.musicTimer = setTimeout(() => this.scheduleMusicStep(), 220);
+  }
+}
+
+const soundEffects = new SoundEffects();
+
 // Game state
 let score = 0;
 let lives = 3;
@@ -287,6 +396,7 @@ function syncSettingsControls() {
 }
 
 function openSettings() {
+  soundEffects.initAudio();
   settingsModal.classList.remove('hidden');
   settingsCloseBtn.focus();
 }
@@ -309,6 +419,11 @@ function configureSettingsPanel() {
   soundToggle.addEventListener('change', () => {
     settings.sound = soundToggle.checked;
     saveSettings();
+    if (settings.sound && gameActive) {
+      soundEffects.startBackgroundMusic();
+    } else {
+      soundEffects.stopBackgroundMusic();
+    }
   });
   languageSelect.addEventListener('change', () => {
     applyLanguage(languageSelect.value);
@@ -330,6 +445,7 @@ window.addEventListener('keyup', (e) => {
 startBtn.addEventListener('click', () => {
   if (!ensureUsername()) return;
 
+  soundEffects.initAudio();
   overlay.classList.add('hidden');
   if (lives <= 0 || (level === 1 && !gameActive)) {
     resetGame();
@@ -338,6 +454,7 @@ startBtn.addEventListener('click', () => {
   }
   if (!gameActive) {
     gameActive = true;
+    soundEffects.startBackgroundMusic();
     gameLoop();
   }
 });
@@ -552,6 +669,7 @@ function update() {
   if ((keys.ArrowUp || keys.KeyW || keys.Space) && player.grounded) {
     player.vy = -player.jumpForce;
     player.grounded = false;
+    soundEffects.playJumpSound();
   }
 
   // Apply Gravity
@@ -602,6 +720,7 @@ function update() {
       if (distance < player.radius + 6) {
         dot.collected = true;
         score += 100;
+        soundEffects.playEatSound();
         updateHUD();
       }
     }
@@ -629,6 +748,7 @@ function update() {
         playerBottom > enemy.y &&
         playerTop < enemy.y + enemy.height) {
       lives--;
+      soundEffects.playDieSound();
       updateHUD();
       if (lives <= 0) {
         gameOver();
@@ -656,6 +776,7 @@ function update() {
 
 function gameOver() {
   gameActive = false;
+  soundEffects.stopBackgroundMusic();
   submitCurrentScore();
   setTranslatedText(overlay.querySelector('h2'), 'game_over');
   setTranslatedText(overlay.querySelector('p'), 'game_over_message', { score });
@@ -665,6 +786,8 @@ function gameOver() {
 
 function levelComplete() {
   gameActive = false;
+  soundEffects.stopBackgroundMusic();
+  soundEffects.playLevelCompleteSound();
   level++;
   const nextLvlConfig = LEVELS[level];
   if (!nextLvlConfig) {
