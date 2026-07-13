@@ -42,37 +42,57 @@ const keys = {
   Space: false
 };
 
-// Platforms (Level 1)
-const platforms = [
-  { x: 0, y: 380, width: 800, height: 20 },   // Ground
-  { x: 150, y: 300, width: 120, height: 15 }, // Platform 1
-  { x: 350, y: 220, width: 120, height: 15 }, // Platform 2
-  { x: 550, y: 150, width: 120, height: 15 }, // Platform 3
-  { x: 50, y: 200, width: 100, height: 15 }    // Platform 4
-];
+let platforms = [];
+let dots = [];
+let enemies = [];
+let portal = { x: 0, y: 0, width: 40, height: 60, active: false };
 
-// Collectibles
-let dots = [
-  { x: 210, y: 270, collected: false },
-  { x: 410, y: 190, collected: false },
-  { x: 610, y: 120, collected: false },
-  { x: 100, y: 170, collected: false },
-  { x: 380, y: 350, collected: false }
-];
-
-// Enemies
-let enemies = [
-  { x: 350, y: 205, width: 20, height: 15, vx: 1, range: 100, startX: 350 },
-  { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 150 }
-];
-
-// Exit Portal
-const portal = {
-  x: 720,
-  y: 320,
-  width: 40,
-  height: 60,
-  active: false
+const LEVELS = {
+  1: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 150, y: 300, width: 120, height: 15 },
+      { x: 350, y: 220, width: 120, height: 15 },
+      { x: 550, y: 150, width: 120, height: 15 },
+      { x: 50, y: 200, width: 100, height: 15 },
+      { x: 10, y: 290, width: 80, height: 15 } // Unreachable platform fix
+    ],
+    dots: [
+      { x: 210, y: 270, collected: false },
+      { x: 410, y: 190, collected: false },
+      { x: 610, y: 120, collected: false },
+      { x: 100, y: 170, collected: false },
+      { x: 380, y: 350, collected: false }
+    ],
+    enemies: [
+      { x: 350, y: 205, width: 20, height: 15, vx: 1, range: 100, startX: 350 },
+      { x: 150, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 150 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  2: {
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 50, y: 300, width: 150, height: 15 },
+      { x: 250, y: 220, width: 150, height: 15 },
+      { x: 450, y: 140, width: 150, height: 15 },
+      { x: 650, y: 220, width: 100, height: 15 }
+    ],
+    dots: [
+      { x: 120, y: 270, collected: false },
+      { x: 320, y: 190, collected: false },
+      { x: 520, y: 110, collected: false },
+      { x: 700, y: 190, collected: false },
+      { x: 200, y: 350, collected: false },
+      { x: 600, y: 350, collected: false }
+    ],
+    enemies: [
+      { x: 250, y: 205, width: 20, height: 15, vx: 1.2, range: 120, startX: 250 },
+      { x: 450, y: 125, width: 20, height: 15, vx: 1.8, range: 120, startX: 450 },
+      { x: 50, y: 285, width: 20, height: 15, vx: 1.5, range: 100, startX: 50 }
+    ],
+    portal: { x: 50, y: 240, width: 40, height: 60, active: false }
+  }
 };
 
 // Setup input listeners
@@ -88,19 +108,42 @@ window.addEventListener('keyup', (e) => {
 });
 
 startBtn.addEventListener('click', () => {
-  resetGame();
   overlay.classList.add('hidden');
-  gameActive = true;
-  gameLoop();
+  if (lives <= 0 || (level === 1 && !gameActive)) {
+    resetGame();
+  } else {
+    loadLevel(level);
+  }
+  if (!gameActive) {
+    gameActive = true;
+    gameLoop();
+  }
 });
+
+function loadLevel(levelNum) {
+  const lvlConfig = LEVELS[levelNum];
+  platforms = lvlConfig.platforms.map(p => ({ ...p }));
+  dots = lvlConfig.dots.map(d => ({ ...d }));
+  enemies = lvlConfig.enemies.map(e => ({ ...e }));
+  portal = { ...lvlConfig.portal };
+  resetPlayer();
+  updateHUD();
+}
+
+function gameVictory() {
+  gameActive = false;
+  overlay.querySelector('h2').textContent = 'Victory!';
+  overlay.querySelector('p').textContent = `Congratulations! You beat all levels with a score of ${score}!`;
+  overlay.querySelector('button').textContent = 'Play Again';
+  overlay.classList.remove('hidden');
+  level = 1;
+}
 
 function resetGame() {
   score = 0;
   lives = 3;
   level = 1;
-  updateHUD();
-  resetPlayer();
-  resetLevel();
+  loadLevel(level);
 }
 
 function resetPlayer() {
@@ -109,11 +152,6 @@ function resetPlayer() {
   player.vx = 0;
   player.vy = 0;
   player.grounded = false;
-}
-
-function resetLevel() {
-  dots.forEach(d => d.collected = false);
-  portal.active = false;
 }
 
 function updateHUD() {
@@ -302,6 +340,12 @@ function gameOver() {
 function levelComplete() {
   gameActive = false;
   level++;
+  const nextLvlConfig = LEVELS[level];
+  if (!nextLvlConfig) {
+    level--;
+    gameVictory();
+    return;
+  }
   overlay.querySelector('h2').textContent = 'Level Complete!';
   overlay.querySelector('p').textContent = `Proceeding to Level ${level}. Great job!`;
   overlay.querySelector('button').textContent = `Start Level ${level}`;
