@@ -5,6 +5,10 @@ const overlay = document.getElementById('game-overlay');
 const scoreVal = document.getElementById('score-val');
 const livesVal = document.getElementById('lives-val');
 const levelVal = document.getElementById('level-val');
+const overlayMsg = document.getElementById('overlay-msg');
+const highscoreEntry = document.getElementById('highscore-entry');
+const playerNameInput = document.getElementById('player-name');
+const highscoresList = document.getElementById('highscores-list');
 
 // Game state
 let score = 0;
@@ -107,8 +111,55 @@ window.addEventListener('keyup', (e) => {
   if (e.code in keys) keys[e.code] = false;
 });
 
-startBtn.addEventListener('click', () => {
+async function fetchHighScores() {
+  try {
+    const response = await fetch('/api/scores');
+    if (!response.ok) throw new Error('Failed to fetch scores');
+    const scores = await response.json();
+
+    highscoresList.innerHTML = '';
+    if (scores.length === 0) {
+      highscoresList.innerHTML = '<li>No scores yet.</li>';
+      return;
+    }
+
+    scores.forEach((s, index) => {
+      const li = document.createElement('li');
+      li.textContent = `${index + 1}. ${s.name} - ${s.score}`;
+      li.style.marginBottom = '5px';
+      highscoresList.appendChild(li);
+    });
+  } catch (error) {
+    console.error('Error fetching highscores:', error);
+    highscoresList.innerHTML = '<li>Could not load scores.</li>';
+  }
+}
+
+async function submitHighScore() {
+  const name = playerNameInput.value.trim() || 'Anonymous';
+  try {
+    await fetch('/api/scores', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name, score })
+    });
+    fetchHighScores();
+  } catch (error) {
+    console.error('Error submitting highscore:', error);
+  }
+}
+
+startBtn.addEventListener('click', async () => {
+  if (!highscoreEntry.classList.contains('hidden') && score > 0) {
+    await submitHighScore();
+  }
+
   overlay.classList.add('hidden');
+  highscoreEntry.classList.add('hidden');
+  playerNameInput.value = '';
+
   if (lives <= 0 || (level === 1 && !gameActive)) {
     resetGame();
   } else {
@@ -133,8 +184,9 @@ function loadLevel(levelNum) {
 function gameVictory() {
   gameActive = false;
   overlay.querySelector('h2').textContent = 'Victory!';
-  overlay.querySelector('p').textContent = `Congratulations! You beat all levels with a score of ${score}!`;
-  overlay.querySelector('button').textContent = 'Play Again';
+  overlayMsg.textContent = `Congratulations! You beat all levels with a score of ${score}!`;
+  overlay.querySelector('button').textContent = 'Submit & Play Again';
+  highscoreEntry.classList.remove('hidden');
   overlay.classList.remove('hidden');
   level = 1;
 }
@@ -332,8 +384,9 @@ function update() {
 function gameOver() {
   gameActive = false;
   overlay.querySelector('h2').textContent = 'Game Over';
-  overlay.querySelector('p').textContent = `You scored ${score} points. Try again!`;
-  overlay.querySelector('button').textContent = 'Try Again';
+  overlayMsg.textContent = `You scored ${score} points.`;
+  overlay.querySelector('button').textContent = 'Submit & Try Again';
+  highscoreEntry.classList.remove('hidden');
   overlay.classList.remove('hidden');
 }
 
@@ -558,3 +611,4 @@ function gameLoop() {
 
 // Initial draw of static game screen
 draw();
+fetchHighScores();
