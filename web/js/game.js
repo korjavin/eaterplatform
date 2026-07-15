@@ -1147,8 +1147,14 @@ function checkPlatformCollisions(prevX, prevY) {
       // Use last frame's position (before this frame's movement) to tell which
       // side the player approached from. Comparing overlap depth instead is
       // ambiguous near platform edges and can snap the player to the far side.
-      const wasAbove = prevY + player.radius <= plat.y;
-      const wasBelow = prevY - player.radius >= plat.y + plat.height;
+      // Growth tolerance accounts for the player's radius growing (eating a
+      // dot) between the frame that set prevY and this one - without it, the
+      // margin that used to clear plat.y no longer does, and a player
+      // standing still gets misclassified as a horizontal hit and kicked
+      // sideways off the platform.
+      const growthTolerance = player.radius * 0.1;
+      const wasAbove = prevY + player.radius <= plat.y + growthTolerance;
+      const wasBelow = prevY - player.radius >= plat.y + plat.height - growthTolerance;
 
       if (wasAbove && player.vy >= 0) {
         // Landing on top of platform
