@@ -1517,6 +1517,37 @@ function draw() {
   ctx.fillStyle = '#ff007f';
   for (const enemy of enemies) {
     ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    
+    // Laugh if cheat code is active
+    if (Date.now() < cheatTextEndTime) {
+      ctx.save();
+      const bx = enemy.x + enemy.width / 2;
+      const by = enemy.y - 20;
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1.5;
+      
+      ctx.beginPath();
+      ctx.roundRect(bx - 20, by - 10, 40, 16, 5);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(bx - 4, by + 6);
+      ctx.lineTo(bx, by + 11);
+      ctx.lineTo(bx + 4, by + 6);
+      ctx.closePath();
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.font = 'bold 10px "Arial", sans-serif';
+      ctx.fillStyle = '#ff007f';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('HAHA!', bx, by - 2);
+      ctx.restore();
+    }
   }
 
   // Draw Player (Eater) - Blocky green monster matching design draft
