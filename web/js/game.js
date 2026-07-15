@@ -1075,6 +1075,13 @@ function getDotRadius(dot) {
   return dot.radius ?? (dot.big ? BIG_DOT_RADIUS : SMALL_DOT_RADIUS);
 }
 
+// How many more standard dots the player needs to eat before they're big
+// enough to eat a Big Star, at the player's current size.
+function getBigDotRingsNeeded() {
+  if (player.radius >= BIG_DOT_MIN_PLAYER_RADIUS) return 0;
+  return Math.max(0, Math.ceil(Math.log(BIG_DOT_MIN_PLAYER_RADIUS / player.radius) / Math.log(1.05)));
+}
+
 function getDotColor(dot) {
   if (dot.red) return '#e74c3c';
   if (dot.green) return '#2ecc71';
@@ -1531,6 +1538,19 @@ function draw() {
       ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0; // reset
+
+      if (isBig) {
+        // One ring per remaining standard dot the player needs to eat to grow
+        // big enough for this star, so the required size is visible at a glance.
+        const ringsNeeded = getBigDotRingsNeeded();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < ringsNeeded; i++) {
+          ctx.beginPath();
+          ctx.arc(dot.x, dot.y, dotRadius + 10 + i * 6, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
     }
   }
 
