@@ -347,6 +347,14 @@ function getEnemySpeedScale() {
 const MIN_PLAYER_RADIUS = 10;
 const INVINCIBILITY_FRAMES = 90;
 const CHEAT_CODE = 'iddqd';
+
+// A bigger eater jumps a bit weaker - heavier, less spring. Shared by the
+// player's own jump and by the roaming enemy, which jumps only as high as
+// the eater currently can.
+function getPlayerJumpForce() {
+  const sizeDiff = player.radius - 15;
+  return Math.max(7.2, player.jumpForce - sizeDiff * 0.25);
+}
 const CHEAT_TIMEOUT_MS = 5000;
 
 // Player configuration
@@ -392,7 +400,6 @@ const HEART_BOX_BLINK_MS = 1000;
 const ROAM_ENEMY_WIDTH = 26;
 const ROAM_ENEMY_HEIGHT = 22;
 const ROAM_ENEMY_SPEED = 1.8;
-const ROAM_ENEMY_JUMP_FORCE = 8;
 const ROAM_ENEMY_JUMP_CHANCE = 0.01;
 
 const LEVELS = {
@@ -1399,7 +1406,7 @@ function updateRoamingEnemy(enemy, speedScale) {
   }
 
   if (enemy.grounded && Math.random() < ROAM_ENEMY_JUMP_CHANCE) {
-    enemy.vy = -ROAM_ENEMY_JUMP_FORCE;
+    enemy.vy = -getPlayerJumpForce();
     enemy.grounded = false;
   }
 }
@@ -1491,9 +1498,7 @@ function update() {
 
   // Jumping (scaled by size/weight)
   if ((keys.ArrowUp || keys.KeyW || keys.Space) && player.grounded) {
-    const sizeDiff = player.radius - 15;
-    const currentJumpForce = Math.max(7.2, player.jumpForce - sizeDiff * 0.25);
-    player.vy = -currentJumpForce;
+    player.vy = -getPlayerJumpForce();
     player.grounded = false;
     player.boostedJumpActive = player.speedBoostTimer > 0;
     soundEffects.playJumpSound();
