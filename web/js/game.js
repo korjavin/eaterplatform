@@ -1093,7 +1093,7 @@ function triggerSizeReset() {
 
   // Deflate by one star's worth
   player.radius = Math.max(15, player.radius / 1.05);
-  score = Math.max(0, score - 10);
+  score = Math.max(0, score - 100);
   
   // Spit out a yellow star
   const angle = Math.PI * (1.2 + Math.random() * 0.6); // Random upward parabola
