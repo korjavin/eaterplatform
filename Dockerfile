@@ -22,7 +22,8 @@ COPY --from=builder /app/server .
 COPY web/ ./web/
 
 # Create non-root user and switch to it for security
-RUN addgroup -g 1000 appuser && \
+RUN mkdir -p /app/data && \
+    addgroup -g 1000 appuser && \
     adduser -D -u 1000 -G appuser appuser && \
     chown -R appuser:appuser /app
 

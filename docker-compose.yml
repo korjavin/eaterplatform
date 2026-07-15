@@ -4,6 +4,10 @@ services:
   app:
     image: ghcr.io/korjavin/eaterplatform:latest
     container_name: eaterplatform
+    environment:
+      - DATABASE_PATH=/app/data/eater.db
+    volumes:
+      - eater_data:/app/data
     networks:
       - traefik_network
     labels:
@@ -14,6 +18,9 @@ services:
       - "traefik.http.routers.eaterplatform.tls.certresolver=myresolver"
       - "traefik.http.services.eaterplatform.loadbalancer.server.port=8080"
     restart: unless-stopped
+
+volumes:
+  eater_data:
 
 networks:
   traefik_network:

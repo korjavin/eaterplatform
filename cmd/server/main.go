@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -32,7 +33,20 @@ func main() {
 	}
 
 	// Open SQLite database
-	db, err := sql.Open("sqlite", "eater.db")
+	dbPath := os.Getenv("DATABASE_PATH")
+	if dbPath == "" {
+		dbPath = "eater.db"
+	}
+
+	// Ensure parent directory of database exists
+	if dir := filepath.Dir(dbPath); dir != "." && dir != "" {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			slog.Error("Failed to create database directory", "dir", dir, "error", err)
+			os.Exit(1)
+		}
+	}
+
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		slog.Error("Failed to open SQLite database", "error", err)
 		os.Exit(1)
