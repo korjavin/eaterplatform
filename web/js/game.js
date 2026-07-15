@@ -1098,10 +1098,126 @@ function getBigDotProgress() {
   return Math.max(0, Math.min(1, dotsEaten / getBigDotStepsNeeded()));
 }
 
-function getDotColor(dot) {
+const UNREACHABLE_DOT_COLOR = '#b0b8bf';
+
+function getDotColor(dot, reachable = true) {
   if (dot.red) return '#e74c3c';
+  if (!reachable) return UNREACHABLE_DOT_COLOR;
   if (dot.green) return '#2ecc71';
   return dot.big ? '#f39c12' : '#f3ca20';
+}
+
+// --- Reachability ---------------------------------------------------------
+// A star is "unreachable" (drawn silver) if no chain of platform-to-platform
+// jumps from the player's current position and size gets there. Everything
+// here is recomputed fresh from live player.x/y/radius each frame, so it
+// tracks growing, shrinking, dying, and moving around automatically.
+const REACH_JUMP_FORCE = BASE_JUMP_FORCE;
+const REACH_SPEED = BASE_PLAYER_SPEED;
+const REACH_FULL_MAX_RISE = (REACH_JUMP_FORCE * REACH_JUMP_FORCE) / (2 * GRAVITY);
+
+// Frames to rise/fall a vertical distance dy (positive = downward) when
+// launched upward at REACH_JUMP_FORCE under GRAVITY. Null if dy is an
+// upward distance beyond how high a jump can ever rise.
+function reachJumpTime(dy) {
+  const disc = REACH_JUMP_FORCE * REACH_JUMP_FORCE + 2 * GRAVITY * dy;
+  if (disc < 0) return null;
+  return (REACH_JUMP_FORCE + Math.sqrt(disc)) / GRAVITY;
+}
+
+// Whether the player's head clears every platform along the way from
+// (x0,y0) to (x1,y1) - bigger radius means less headroom, which is how
+// size alone can make an otherwise in-range jump unreachable. excludePlat
+// is the destination platform itself, if any: landing on it isn't "hitting
+// a ceiling".
+function jumpPathClear(x0, y0, x1, y1, radius, excludePlat) {
+  const headTop0 = y0 - radius;
+  const headTopTarget = y1 - radius;
+  if (headTopTarget >= headTop0) return true;
+  const minX = Math.min(x0, x1) - radius;
+  const maxX = Math.max(x0, x1) + radius;
+  for (const plat of platforms) {
+    if (plat === excludePlat) continue;
+    if (plat.x >= maxX || plat.x + plat.width <= minX) continue;
+    const bottom = plat.y + plat.height;
+    if (bottom > headTopTarget && bottom <= headTop0) return false;
+  }
+  return true;
+}
+
+function canReachPoint(x0, y0, x1, y1, radius, excludePlat) {
+  const dy = y1 - y0;
+  if (dy < 0 && -dy > REACH_FULL_MAX_RISE) return false;
+  const t = reachJumpTime(dy);
+  if (t === null) return false;
+  if (Math.abs(x1 - x0) > REACH_SPEED * t) return false;
+  return jumpPathClear(x0, y0, x1, y1, radius, excludePlat);
+}
+
+// A few candidate takeoff spots along a platform: both edges, plus the
+// point closest to the target (walking there first is free).
+function takeoffCandidates(plat, targetX) {
+  const left = plat.x;
+  const right = plat.x + plat.width;
+  const near = Math.max(left, Math.min(right, targetX));
+  return [...new Set([left, right, near])];
+}
+
+function canReachPointFromPlatform(plat, radius, targetX, targetY) {
+  const y0 = plat.y - radius;
+  for (const x0 of takeoffCandidates(plat, targetX)) {
+    if (canReachPoint(x0, y0, targetX, targetY, radius)) return true;
+  }
+  return false;
+}
+
+function canReachPlatformFromPlatform(plat, radius, toPlat) {
+  const y0 = plat.y - radius;
+  const toXMin = toPlat.x;
+  const toXMax = toPlat.x + toPlat.width;
+  const toY = toPlat.y - radius;
+  for (const x0 of takeoffCandidates(plat, (toXMin + toXMax) / 2)) {
+    const x1 = Math.max(toXMin, Math.min(toXMax, x0));
+    if (canReachPoint(x0, y0, x1, toY, radius, toPlat)) return true;
+  }
+  return false;
+}
+
+// BFS over platforms, starting from the player's live position, following
+// edges that a single jump (at the player's current size) can cross.
+function computeReachablePlatforms() {
+  const radius = player.radius;
+  const reachable = new Set();
+  const queue = [];
+
+  for (let i = 0; i < platforms.length; i++) {
+    const plat = platforms[i];
+    const landX = Math.max(plat.x, Math.min(plat.x + plat.width, player.x));
+    if (canReachPoint(player.x, player.y, landX, plat.y - radius, radius, plat)) {
+      reachable.add(i);
+      queue.push(i);
+    }
+  }
+  while (queue.length) {
+    const plat = platforms[queue.pop()];
+    for (let j = 0; j < platforms.length; j++) {
+      if (reachable.has(j)) continue;
+      if (canReachPlatformFromPlatform(plat, radius, platforms[j])) {
+        reachable.add(j);
+        queue.push(j);
+      }
+    }
+  }
+  return reachable;
+}
+
+function isPointReachable(x, y, reachablePlatforms) {
+  const radius = player.radius;
+  if (canReachPoint(player.x, player.y, x, y, radius)) return true;
+  for (const i of reachablePlatforms) {
+    if (canReachPointFromPlatform(platforms[i], radius, x, y)) return true;
+  }
+  return false;
 }
 
 function isStandardDot(dot) {
@@ -1533,18 +1649,22 @@ function draw() {
   }
 
   // Draw Dots
+  const reachablePlatforms = computeReachablePlatforms();
   for (const dot of dots) {
     if (!dot.collected) {
       const isBig = !!dot.big;
       const isGreen = !!dot.green;
       const dotRadius = getDotRadius(dot);
-      const dotColor = getDotColor(dot);
+      const reachable = dot.red || isPointReachable(dot.x, dot.y, reachablePlatforms);
+      const dotColor = getDotColor(dot, reachable);
       ctx.fillStyle = dotColor;
       ctx.shadowBlur = isBig ? 14 : (isGreen ? 12 : 8);
       ctx.shadowColor = dotColor;
       if (isBig || isGreen) {
         const pulse = 0.5 + Math.sin(performance.now() / 180) * 0.25;
-        ctx.strokeStyle = isGreen ? `rgba(46, 204, 113, ${pulse})` : `rgba(243, 156, 18, ${pulse})`;
+        ctx.strokeStyle = !reachable
+          ? `rgba(176, 184, 191, ${pulse})`
+          : (isGreen ? `rgba(46, 204, 113, ${pulse})` : `rgba(243, 156, 18, ${pulse})`);
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dotRadius + 5, 0, Math.PI * 2);
