@@ -327,6 +327,15 @@ const BOOST_SLIP_SPEED = 8;
 const SMALL_DOT_RADIUS = 6;
 const BIG_DOT_RADIUS = 12;
 const BIG_DOT_MIN_PLAYER_RADIUS = 18;
+
+// Enemies move slower overall, and slower still when the player is low on lives.
+const BASE_ENEMY_SPEED_SCALE = 0.7;
+function getEnemySpeedScale() {
+  let livesScale = 1;
+  if (lives <= 1) livesScale = 0.6;
+  else if (lives <= 2) livesScale = 0.8;
+  return BASE_ENEMY_SPEED_SCALE * livesScale;
+}
 const MIN_PLAYER_RADIUS = 10;
 const INVINCIBILITY_FRAMES = 90;
 const CHEAT_CODE = 'iddqd';
@@ -1277,8 +1286,9 @@ function update() {
   }
 
   // Enemies update & check collision
+  const enemySpeedScale = getEnemySpeedScale();
   for (const enemy of enemies) {
-    enemy.x += enemy.vx;
+    enemy.x += enemy.vx * enemySpeedScale;
     if (Math.abs(enemy.x - enemy.startX) > enemy.range) {
       enemy.vx = -enemy.vx;
     }
