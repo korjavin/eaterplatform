@@ -267,6 +267,14 @@ class SoundEffects {
     this.playTone(880, 1320, 0.4, 'sine', 0.08);
   }
 
+  playHeartPickupSound() {
+    this.playTone(600, 1000, 0.15, 'sine', 0.09);
+  }
+
+  playEnemySpawnSound() {
+    this.playTone(220, 60, 0.4, 'sawtooth', 0.1);
+  }
+
   startBackgroundMusic() {
     if (this.musicPlaying || !settings.sound) return;
     if (!this.initAudio()) return;
@@ -373,6 +381,19 @@ let platforms = [];
 let dots = [];
 let enemies = [];
 let portal = { x: 0, y: 0, width: 40, height: 60, active: false };
+let heartBox = null;
+
+// Rare bonus box: 10% chance per level. Grants a heart on touch, then
+// blinks for a second before spawning a roaming enemy that hunts the
+// player instead of patrolling a fixed range - a small risk/reward trade.
+const HEART_BOX_SPAWN_CHANCE = 0.1;
+const HEART_BOX_SIZE = 24;
+const HEART_BOX_BLINK_MS = 1000;
+const ROAM_ENEMY_WIDTH = 26;
+const ROAM_ENEMY_HEIGHT = 22;
+const ROAM_ENEMY_SPEED = 1.8;
+const ROAM_ENEMY_JUMP_FORCE = 8;
+const ROAM_ENEMY_JUMP_CHANCE = 0.01;
 
 const LEVELS = {
   1: {
@@ -986,6 +1007,33 @@ function submitCurrentScore() {
   void submitScore(username, score);
 }
 
+function spawnHeartBox() {
+  const plat = platforms[Math.floor(Math.random() * platforms.length)];
+  const maxOffset = Math.max(0, plat.width - HEART_BOX_SIZE);
+  return {
+    x: plat.x + Math.random() * maxOffset,
+    y: plat.y - HEART_BOX_SIZE,
+    width: HEART_BOX_SIZE,
+    height: HEART_BOX_SIZE,
+    collected: false,
+    blinkEndTime: 0,
+    enemySpawned: false
+  };
+}
+
+function spawnRoamingEnemy(centerX, topY) {
+  return {
+    x: centerX - ROAM_ENEMY_WIDTH / 2,
+    y: topY - ROAM_ENEMY_HEIGHT,
+    width: ROAM_ENEMY_WIDTH,
+    height: ROAM_ENEMY_HEIGHT,
+    vx: 0,
+    vy: 0,
+    roaming: true,
+    grounded: false
+  };
+}
+
 function loadLevel(levelNum) {
   const lvlConfig = LEVELS[levelNum];
   levelStartLives = lives;
@@ -993,6 +1041,7 @@ function loadLevel(levelNum) {
   dots = lvlConfig.dots.map(d => ({ ...d }));
   enemies = lvlConfig.enemies.map(e => ({ ...e }));
   portal = { ...lvlConfig.portal };
+  heartBox = Math.random() < HEART_BOX_SPAWN_CHANCE ? spawnHeartBox() : null;
   resetPlayer(levelNum > 1);
   updateHUD();
 }
@@ -1315,6 +1364,46 @@ function collectDot(dot) {
   updateHUD();
 }
 
+// Chases the player horizontally instead of patrolling a fixed range, and
+// falls/lands on platforms under gravity like the player does, with an
+// occasional low jump to cross gaps or reach a platform above it.
+function updateRoamingEnemy(enemy, speedScale) {
+  const dir = player.x > enemy.x + enemy.width / 2 ? 1 : -1;
+  enemy.vx = dir * ROAM_ENEMY_SPEED * speedScale;
+  enemy.x += enemy.vx;
+  if (enemy.x < 0) enemy.x = 0;
+  if (enemy.x + enemy.width > canvas.width) enemy.x = canvas.width - enemy.width;
+
+  enemy.vy += GRAVITY;
+  const prevBottom = enemy.y + enemy.height;
+  enemy.y += enemy.vy;
+  enemy.grounded = false;
+
+  const bottom = enemy.y + enemy.height;
+  if (enemy.vy >= 0) {
+    for (const plat of platforms) {
+      if (enemy.x + enemy.width > plat.x && enemy.x < plat.x + plat.width &&
+          prevBottom <= plat.y && bottom >= plat.y) {
+        enemy.y = plat.y - enemy.height;
+        enemy.vy = 0;
+        enemy.grounded = true;
+        break;
+      }
+    }
+  }
+
+  if (enemy.y + enemy.height > canvas.height) {
+    enemy.y = canvas.height - enemy.height;
+    enemy.vy = 0;
+    enemy.grounded = true;
+  }
+
+  if (enemy.grounded && Math.random() < ROAM_ENEMY_JUMP_CHANCE) {
+    enemy.vy = -ROAM_ENEMY_JUMP_FORCE;
+    enemy.grounded = false;
+  }
+}
+
 // Collisions with platforms
 function checkPlatformCollisions(prevX, prevY) {
   player.grounded = false;
@@ -1533,12 +1622,38 @@ function update() {
     portal.active = true;
   }
 
+  // Heart box: grants a heart on touch, then blinks for a second before
+  // spawning a roaming enemy where it stood.
+  if (heartBox) {
+    if (!heartBox.collected) {
+      const dx = player.x - (heartBox.x + heartBox.width / 2);
+      const dy = player.y - (heartBox.y + heartBox.height / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < player.radius + heartBox.width / 2) {
+        heartBox.collected = true;
+        heartBox.blinkEndTime = Date.now() + HEART_BOX_BLINK_MS;
+        lives = Math.min(5, lives + 1);
+        soundEffects.playHeartPickupSound();
+        updateHUD();
+      }
+    } else if (!heartBox.enemySpawned && Date.now() >= heartBox.blinkEndTime) {
+      heartBox.enemySpawned = true;
+      enemies.push(spawnRoamingEnemy(heartBox.x + heartBox.width / 2, heartBox.y + heartBox.height));
+      soundEffects.playEnemySpawnSound();
+      heartBox = null;
+    }
+  }
+
   // Enemies update & check collision
   const enemySpeedScale = getEnemySpeedScale();
   for (const enemy of enemies) {
-    enemy.x += enemy.vx * enemySpeedScale;
-    if (Math.abs(enemy.x - enemy.startX) > enemy.range) {
-      enemy.vx = -enemy.vx;
+    if (enemy.roaming) {
+      updateRoamingEnemy(enemy, enemySpeedScale);
+    } else {
+      enemy.x += enemy.vx * enemySpeedScale;
+      if (Math.abs(enemy.x - enemy.startX) > enemy.range) {
+        enemy.vx = -enemy.vx;
+      }
     }
 
     if (player.invincibleTimer > 0) continue;
@@ -1746,6 +1861,26 @@ function draw() {
     ctx.fillStyle = theme.platformFill;
   }
 
+  // Draw Heart Box - blinks for a second after being touched, right before
+  // the roaming enemy it warns about spawns.
+  if (heartBox) {
+    const visible = !heartBox.collected || Math.floor(Date.now() / 120) % 2 === 0;
+    if (visible) {
+      ctx.fillStyle = '#5c3a21';
+      ctx.strokeStyle = '#2e1c10';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(heartBox.x, heartBox.y, heartBox.width, heartBox.height, 4);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ff4d6d';
+      ctx.font = 'bold 16px "Arial", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('❤', heartBox.x + heartBox.width / 2, heartBox.y + heartBox.height / 2 + 1);
+    }
+  }
+
   // Draw Dots
   const reachablePlatforms = computeReachablePlatforms();
   for (const dot of dots) {
@@ -1796,10 +1931,18 @@ function draw() {
   }
 
   // Draw Enemies
-  ctx.fillStyle = '#ff007f';
   for (const enemy of enemies) {
+    if (enemy.roaming) {
+      ctx.fillStyle = '#6a0dad';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#6a0dad';
+    } else {
+      ctx.fillStyle = '#ff007f';
+      ctx.shadowBlur = 0;
+    }
     ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-    
+    ctx.shadowBlur = 0;
+
     // Laugh if cheat code is active
     if (Date.now() < cheatTextEndTime) {
       ctx.save();
