@@ -1048,12 +1048,39 @@ function handleCheatInput(keyChar) {
   cheatBuffer = cheatBuffer.filter(input => now - input.time <= CHEAT_TIMEOUT_MS);
   cheatBuffer.push({ char: keyChar.toLowerCase(), time: now });
 
-  if (cheatBuffer.map(input => input.char).join('').endsWith(CHEAT_CODE)) {
+  const currentStr = cheatBuffer.map(input => input.char).join('');
+
+  if (currentStr.endsWith(CHEAT_CODE)) {
     lives = Math.min(5, lives + 3);
     cheatTextEndTime = Date.now() + 5000;
     soundEffects.playCheatSuccessSound();
     cheatBuffer = [];
     updateHUD();
+    return;
+  }
+
+  // Debug level select cheat: iddwd<char>
+  const debugPrefix = 'iddwd';
+  if (currentStr.length >= debugPrefix.length + 1) {
+    const lastPart = currentStr.slice(-(debugPrefix.length + 1));
+    if (lastPart.startsWith(debugPrefix)) {
+      const suffix = lastPart.charAt(debugPrefix.length);
+      let targetLevel = -1;
+      if (suffix >= '1' && suffix <= '9') {
+        targetLevel = parseInt(suffix, 10);
+      } else if (suffix === '0') {
+        targetLevel = 10;
+      } else if (suffix === 'a' || suffix === 'b' || suffix === 'e') {
+        targetLevel = 11;
+      }
+
+      if (targetLevel !== -1 && LEVELS[targetLevel]) {
+        level = targetLevel;
+        loadLevel(level);
+        soundEffects.playCheatSuccessSound();
+        cheatBuffer = [];
+      }
+    }
   }
 }
 
