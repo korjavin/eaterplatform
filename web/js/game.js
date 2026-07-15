@@ -427,13 +427,13 @@ const LEVELS = {
       { x: 100, y: 300, width: 120, height: 15 },
       { x: 300, y: 220, width: 120, height: 15 },
       { x: 500, y: 140, width: 120, height: 15 },
-      { x: 200, y: 110, width: 120, height: 15 }
+      { x: 200, y: 135, width: 120, height: 15 }
     ],
     dots: [
       { x: 160, y: 270, collected: false },
       { x: 360, y: 190, collected: false },
       { x: 560, y: 110, collected: false, big: true, radius: BIG_DOT_RADIUS },
-      { x: 260, y: 80, collected: false },
+      { x: 260, y: 105, collected: false },
       { x: 300, y: 350, collected: false, red: true },
       { x: 50, y: 350, collected: false },
       { x: 650, y: 350, collected: false }
