@@ -1122,7 +1122,7 @@ function collectDot(dot) {
 }
 
 // Collisions with platforms
-function checkPlatformCollisions() {
+function checkPlatformCollisions(prevX, prevY) {
   player.grounded = false;
 
   for (const plat of platforms) {
@@ -1136,32 +1136,28 @@ function checkPlatformCollisions() {
         playerLeft < plat.x + plat.width &&
         playerBottom > plat.y &&
         playerTop < plat.y + plat.height) {
-      
-      // Calculate depth of intersection on both axes
-      const overlapX = Math.min(playerRight - plat.x, plat.x + plat.width - playerLeft);
-      const overlapY = Math.min(playerBottom - plat.y, plat.y + plat.height - playerTop);
 
-      if (overlapY < overlapX) {
-        // Collision is vertical
-        if (player.vy > 0 && playerBottom - player.vy <= plat.y + 2) {
-          // Landing on top of platform
-          player.y = plat.y - player.radius;
-          player.vy = 0;
-          player.grounded = true;
-        } else if (player.vy < 0) {
-          // Hitting bottom of platform
-          player.y = plat.y + plat.height + player.radius;
-          player.vy = 0;
-        }
-      } else {
-        // Collision is horizontal
-        if (player.vx > 0) {
-          player.x = plat.x - player.radius;
-          player.vx = 0;
-        } else if (player.vx < 0) {
-          player.x = plat.x + plat.width + player.radius;
-          player.vx = 0;
-        }
+      // Use last frame's position (before this frame's movement) to tell which
+      // side the player approached from. Comparing overlap depth instead is
+      // ambiguous near platform edges and can snap the player to the far side.
+      const wasAbove = prevY + player.radius <= plat.y;
+      const wasBelow = prevY - player.radius >= plat.y + plat.height;
+
+      if (wasAbove && player.vy >= 0) {
+        // Landing on top of platform
+        player.y = plat.y - player.radius;
+        player.vy = 0;
+        player.grounded = true;
+      } else if (wasBelow && player.vy < 0) {
+        // Hitting bottom of platform
+        player.y = plat.y + plat.height + player.radius;
+        player.vy = 0;
+      } else if (player.vx > 0) {
+        player.x = plat.x - player.radius;
+        player.vx = 0;
+      } else if (player.vx < 0) {
+        player.x = plat.x + plat.width + player.radius;
+        player.vx = 0;
       }
     }
   }
@@ -1215,6 +1211,8 @@ function update() {
   player.vy += GRAVITY;
 
   // Apply velocities
+  const prevX = player.x;
+  const prevY = player.y;
   player.x += player.vx;
   player.y += player.vy;
 
@@ -1245,7 +1243,7 @@ function update() {
   }
 
   // Platform collision resolution
-  checkPlatformCollisions();
+  checkPlatformCollisions(prevX, prevY);
   if (!wasGrounded && player.grounded && player.boostedJumpActive) {
     player.vx = player.facingLeft ? -BOOST_SLIP_SPEED : BOOST_SLIP_SPEED;
     player.boostedJumpActive = false;
