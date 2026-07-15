@@ -42,7 +42,7 @@ const TRANSLATIONS = {
     score: 'Score',
     lives: 'Lives',
     level: 'Level',
-    reset_size_btn: 'Reset Size (-0.5 ❤)',
+    reset_size_btn: 'Reset Size (Spit Star)',
     level_hud_value: '{level} ({rank})',
     rank_1: 'Beginner',
     rank_2: 'Dot Hunter',
@@ -94,7 +94,7 @@ const TRANSLATIONS = {
     score: 'Punkte',
     lives: 'Leben',
     level: 'Level',
-    reset_size_btn: 'Größe zurücksetzen (-0.5 ❤)',
+    reset_size_btn: 'Größe zurücksetzen (Stern spucken)',
     level_hud_value: '{level} ({rank})',
     rank_1: 'Anfänger',
     rank_2: 'Punktejäger',
@@ -146,7 +146,7 @@ const TRANSLATIONS = {
     score: 'Счет',
     lives: 'Жизни',
     level: 'Уровень',
-    reset_size_btn: 'Сбросить размер (-0.5 ❤)',
+    reset_size_btn: 'Сбросить размер (Выплюнуть звезду)',
     level_hud_value: '{level} ({rank})',
     rank_1: 'Новичок',
     rank_2: 'Охотник за точками',
@@ -1056,15 +1056,29 @@ function handleCheatInput(keyChar) {
 
 function triggerSizeReset() {
   if (!gameActive) return;
+  if (player.radius <= 15) return; // Cannot deflate below baseline
 
-  lives -= 0.5;
-  player.radius = 15;
-  ensureLevelSolvable();
+  // Deflate by one star's worth
+  player.radius = Math.max(15, player.radius / 1.05);
+  score = Math.max(0, score - 10);
+  
+  // Spit out a yellow star
+  const angle = Math.PI * (1.2 + Math.random() * 0.6); // Random upward parabola
+  const speed = 6 + Math.random() * 4;
+  dots.push({
+    x: player.x,
+    y: player.y - player.radius, // start at top mouth position
+    collected: false,
+    vx: speed * Math.cos(angle),
+    vy: speed * Math.sin(angle),
+    isSpitMoving: true
+  });
+
+  // Play blurp sound
   soundEffects.playSizeResetSound();
+
+  ensureLevelSolvable();
   updateHUD();
-  if (lives <= 0) {
-    gameOver();
-  }
 }
 
 function getRankName(levelNum) {
@@ -1414,10 +1428,57 @@ function update() {
     mouthAngle = 0.15;
   }
 
+  // Update spit-moving dots
+  for (const dot of dots) {
+    if (dot.isSpitMoving) {
+      dot.vy += GRAVITY;
+      const prevDotY = dot.y;
+      dot.x += dot.vx;
+      dot.y += dot.vy;
+
+      // Screen boundaries check
+      const dotRadius = getDotRadius(dot);
+      if (dot.x - dotRadius < 0) {
+        dot.x = dotRadius;
+        dot.vx = -dot.vx * 0.5;
+      } else if (dot.x + dotRadius > canvas.width) {
+        dot.x = canvas.width - dotRadius;
+        dot.vx = -dot.vx * 0.5;
+      }
+
+      // Ground check (if it falls to the bottom of the screen)
+      if (dot.y + dotRadius >= canvas.height - 10) {
+        dot.y = canvas.height - 10 - dotRadius;
+        dot.vx = 0;
+        dot.vy = 0;
+        dot.isSpitMoving = false;
+      } else if (dot.vy >= 0) {
+        // Platform landing check when moving down
+        for (const plat of platforms) {
+          if (dot.x >= plat.x && dot.x <= plat.x + plat.width) {
+            const prevBottom = prevDotY + dotRadius;
+            const currBottom = dot.y + dotRadius;
+            if (prevBottom <= plat.y && currBottom >= plat.y) {
+              dot.y = plat.y - dotRadius;
+              dot.vx = 0;
+              dot.vy = 0;
+              dot.isSpitMoving = false;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
   // Collectibles check
   let allCollected = true;
   for (const dot of dots) {
     if (!dot.collected) {
+      if (dot.isSpitMoving) {
+        allCollected = false;
+        continue;
+      }
       allCollected = false;
       const dx = player.x - dot.x;
       const dy = player.y - dot.y;
