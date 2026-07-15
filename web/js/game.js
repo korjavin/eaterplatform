@@ -1040,7 +1040,7 @@ function handleCheatInput(keyChar) {
 
   if (cheatBuffer.map(input => input.char).join('').endsWith(CHEAT_CODE)) {
     lives = Math.min(5, lives + 3);
-    cheatTextEndTime = Date.now() + 16000;
+    cheatTextEndTime = Date.now() + 5000;
     soundEffects.playCheatSuccessSound();
     cheatBuffer = [];
     updateHUD();
