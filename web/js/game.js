@@ -1075,6 +1075,29 @@ function getDotRadius(dot) {
   return dot.radius ?? (dot.big ? BIG_DOT_RADIUS : SMALL_DOT_RADIUS);
 }
 
+// Growth mirrors resetPlayer()'s starting radius and the ×1.05 eat-growth
+// factor applied when a standard dot is collected (see collectDot below).
+const BIG_DOT_BASE_RADIUS = 15;
+const DOT_GROWTH_FACTOR = 1.05;
+
+// Whole standard dots needed to grow from the starting radius to big enough
+// to eat a Big Star - this is the fixed "size" of every Big Star's gauge
+// (e.g. 4 dots -> each dot fills a quarter of the progress ring).
+function getBigDotStepsNeeded() {
+  return Math.max(1, Math.ceil(Math.log(BIG_DOT_MIN_PLAYER_RADIUS / BIG_DOT_BASE_RADIUS) / Math.log(DOT_GROWTH_FACTOR)));
+}
+
+// Fraction of the gauge that should be filled right now, in units of whole
+// dots eaten rather than raw radius ratio (growth is multiplicative, so
+// radius ratio alone doesn't map evenly onto "dots eaten"). Reads
+// player.radius live, so it's automatically correct after growing,
+// shrinking, or a death-respawn reset.
+function getBigDotProgress() {
+  if (player.radius >= BIG_DOT_MIN_PLAYER_RADIUS) return 1;
+  const dotsEaten = Math.log(player.radius / BIG_DOT_BASE_RADIUS) / Math.log(DOT_GROWTH_FACTOR);
+  return Math.max(0, Math.min(1, dotsEaten / getBigDotStepsNeeded()));
+}
+
 function getDotColor(dot) {
   if (dot.red) return '#e74c3c';
   if (dot.green) return '#2ecc71';
@@ -1533,18 +1556,25 @@ function draw() {
       ctx.shadowBlur = 0; // reset
 
       if (isBig) {
-        // Tight progress gauge hugging the star: filled arc = how close the
-        // player's current size is to the size needed to eat this star, so
-        // the gap reads as a proportion instead of an ever-expanding ring
-        // stack. Reads player.radius live each frame, so it stays correct
-        // through shrinking, dying, or growing without any extra bookkeeping.
+        // Tight progress gauge hugging the star, divided into one equal
+        // step per standard dot still needed (e.g. 4 dots needed -> each
+        // fills a quarter of the ring), with tick marks at each step
+        // boundary so the division reads clearly instead of as a vague arc.
         const gaugeRadius = dotRadius + 8;
-        const progress = Math.min(1, player.radius / BIG_DOT_MIN_PLAYER_RADIUS);
+        const stepsNeeded = getBigDotStepsNeeded();
+        const progress = getBigDotProgress();
         ctx.lineWidth = 3;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, gaugeRadius, 0, Math.PI * 2);
         ctx.stroke();
+        for (let s = 1; s < stepsNeeded; s++) {
+          const angle = -Math.PI / 2 + (Math.PI * 2 * s) / stepsNeeded;
+          ctx.beginPath();
+          ctx.moveTo(dot.x + Math.cos(angle) * (gaugeRadius - 2), dot.y + Math.sin(angle) * (gaugeRadius - 2));
+          ctx.lineTo(dot.x + Math.cos(angle) * (gaugeRadius + 2), dot.y + Math.sin(angle) * (gaugeRadius + 2));
+          ctx.stroke();
+        }
         if (progress > 0) {
           ctx.strokeStyle = '#ffffff';
           ctx.beginPath();
