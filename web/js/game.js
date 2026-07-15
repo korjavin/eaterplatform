@@ -399,7 +399,7 @@ const HEART_BOX_SIZE = 24;
 const HEART_BOX_BLINK_MS = 1000;
 const ROAM_ENEMY_WIDTH = 26;
 const ROAM_ENEMY_HEIGHT = 22;
-const ROAM_ENEMY_SPEED = 1.8;
+const ROAM_ENEMY_SPEED_FACTOR = 0.7;
 const ROAM_ENEMY_JUMP_CHANCE = 0.01;
 
 const LEVELS = {
@@ -1373,13 +1373,26 @@ function collectDot(dot) {
 
 // Chases the player horizontally instead of patrolling a fixed range, and
 // falls/lands on platforms under gravity like the player does, with an
-// occasional low jump to cross gaps or reach a platform above it.
+// occasional low jump to cross gaps or reach a platform above it. Always
+// 30% slower than the eater's own current speed (base or boosted).
 function updateRoamingEnemy(enemy, speedScale) {
+  const huntSpeed = player.speed * ROAM_ENEMY_SPEED_FACTOR;
   const dir = player.x > enemy.x + enemy.width / 2 ? 1 : -1;
-  enemy.vx = dir * ROAM_ENEMY_SPEED * speedScale;
+  enemy.vx = dir * huntSpeed * speedScale;
   enemy.x += enemy.vx;
   if (enemy.x < 0) enemy.x = 0;
   if (enemy.x + enemy.width > canvas.width) enemy.x = canvas.width - enemy.width;
+
+  // Pecking beak animation, independent of movement.
+  enemy.beakAngle = enemy.beakAngle ?? 0;
+  enemy.beakOpening = enemy.beakOpening ?? true;
+  if (enemy.beakOpening) {
+    enemy.beakAngle += 0.06;
+    if (enemy.beakAngle >= 1) enemy.beakOpening = false;
+  } else {
+    enemy.beakAngle -= 0.06;
+    if (enemy.beakAngle <= 0) enemy.beakOpening = true;
+  }
 
   enemy.vy += GRAVITY;
   const prevBottom = enemy.y + enemy.height;
@@ -1941,12 +1954,49 @@ function draw() {
       ctx.fillStyle = '#6a0dad';
       ctx.shadowBlur = 10;
       ctx.shadowColor = '#6a0dad';
+      ctx.beginPath();
+      ctx.roundRect(enemy.x, enemy.y, enemy.width, enemy.height, 6);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      const facingRight = enemy.vx >= 0;
+      const dir = facingRight ? 1 : -1;
+      const cx = enemy.x + enemy.width / 2;
+      const cy = enemy.y + enemy.height / 2;
+      const eyeX = cx + dir * enemy.width * 0.2;
+      const eyeY = enemy.y + enemy.height * 0.3;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(eyeX, eyeY, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.arc(eyeX + dir, eyeY, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pecking beak, opens/closes independent of movement
+      const beakX = facingRight ? enemy.x + enemy.width : enemy.x;
+      const beakLen = 9;
+      const beakGap = 2 + enemy.beakAngle * 6;
+      ctx.fillStyle = '#ffcc00';
+      ctx.beginPath();
+      ctx.moveTo(beakX, cy - beakGap);
+      ctx.lineTo(beakX + dir * beakLen, cy);
+      ctx.lineTo(beakX, cy);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(beakX, cy + beakGap);
+      ctx.lineTo(beakX + dir * beakLen, cy);
+      ctx.lineTo(beakX, cy);
+      ctx.closePath();
+      ctx.fill();
     } else {
       ctx.fillStyle = '#ff007f';
       ctx.shadowBlur = 0;
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
     }
-    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-    ctx.shadowBlur = 0;
 
     // Laugh if cheat code is active
     if (Date.now() < cheatTextEndTime) {
