@@ -1590,6 +1590,19 @@ function update() {
         dot.vx = -dot.vx * 0.5;
       }
 
+      // Check collision with enemies
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i];
+        if (dot.x + dotRadius > enemy.x &&
+            dot.x - dotRadius < enemy.x + enemy.width &&
+            dot.y + dotRadius > enemy.y &&
+            dot.y - dotRadius < enemy.y + enemy.height) {
+          // Destroy enemy
+          enemies.splice(i, 1);
+          soundEffects.playTone(400, 100, 0.2, 'sawtooth', 0.08);
+        }
+      }
+
       // Ground check (if it falls to the bottom of the screen)
       if (dot.y + dotRadius >= canvas.height - 10) {
         dot.y = canvas.height - 10 - dotRadius;
