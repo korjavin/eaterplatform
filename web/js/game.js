@@ -521,7 +521,7 @@ const LEVELS = {
       { x: 400, y: 170, width: 100, height: 15 },
       { x: 550, y: 240, width: 100, height: 15 },
       { x: 700, y: 310, width: 100, height: 15 },
-      { x: 250, y: 100, width: 300, height: 15 }
+      { x: 150, y: 100, width: 300, height: 15 }
     ],
     dots: [
       { x: 150, y: 280, collected: false },
@@ -529,10 +529,10 @@ const LEVELS = {
       { x: 450, y: 140, collected: false },
       { x: 600, y: 210, collected: false },
       { x: 750, y: 280, collected: false },
-      { x: 400, y: 70, collected: false, big: true, radius: BIG_DOT_RADIUS }
+      { x: 300, y: 70, collected: false, big: true, radius: BIG_DOT_RADIUS }
     ],
     enemies: [
-      { x: 395, y: 85, width: 20, height: 15, vx: 2, range: 125, startX: 395 }
+      { x: 300, y: 85, width: 20, height: 15, vx: 2, range: 125, startX: 300 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   },
@@ -1122,27 +1122,20 @@ function getDotRadius(dot) {
   return dot.radius ?? (dot.big ? BIG_DOT_RADIUS : SMALL_DOT_RADIUS);
 }
 
-// Growth mirrors resetPlayer()'s starting radius and the ×1.05 eat-growth
-// factor applied when a standard dot is collected (see collectDot below).
+// resetPlayer()'s starting radius - the fixed 0% point of every Big Star's
+// gauge, so the bar always reads empty at the size a player actually starts
+// at and full exactly at the size a Big Star requires.
 const BIG_DOT_BASE_RADIUS = 15;
-const DOT_GROWTH_FACTOR = 1.05;
 
-// Whole standard dots needed to grow from the starting radius to big enough
-// to eat a Big Star - this is the fixed "size" of every Big Star's gauge
-// (e.g. 4 dots -> each dot fills a quarter of the progress ring).
-function getBigDotStepsNeeded() {
-  return Math.max(1, Math.ceil(Math.log(BIG_DOT_MIN_PLAYER_RADIUS / BIG_DOT_BASE_RADIUS) / Math.log(DOT_GROWTH_FACTOR)));
-}
-
-// Fraction of the gauge that should be filled right now, in units of whole
-// dots eaten rather than raw radius ratio (growth is multiplicative, so
-// radius ratio alone doesn't map evenly onto "dots eaten"). Reads
-// player.radius live, so it's automatically correct after growing,
-// shrinking, or a death-respawn reset.
+// How far across the [start size, star size] range the eater's current size
+// sits, 0 to 1. Trivial and linear: star size sets the scale, the gap
+// between current and star size is what's left to grow. Reads player.radius
+// live, so it's automatically correct after growing, shrinking, or a
+// death-respawn reset - no dot-counting involved.
 function getBigDotProgress() {
-  if (player.radius >= BIG_DOT_MIN_PLAYER_RADIUS) return 1;
-  const dotsEaten = Math.log(player.radius / BIG_DOT_BASE_RADIUS) / Math.log(DOT_GROWTH_FACTOR);
-  return Math.max(0, Math.min(1, dotsEaten / getBigDotStepsNeeded()));
+  const scale = BIG_DOT_MIN_PLAYER_RADIUS - BIG_DOT_BASE_RADIUS;
+  const remaining = BIG_DOT_MIN_PLAYER_RADIUS - player.radius;
+  return Math.max(0, Math.min(1, 1 - remaining / scale));
 }
 
 const UNREACHABLE_DOT_COLOR = '#b0b8bf';
@@ -1781,25 +1774,17 @@ function draw() {
       ctx.shadowBlur = 0; // reset
 
       if (isBig) {
-        // Tight progress gauge hugging the star, divided into one equal
-        // step per standard dot still needed (e.g. 4 dots needed -> each
-        // fills a quarter of the ring), with tick marks at each step
-        // boundary so the division reads clearly instead of as a vague arc.
+        // Tight progress gauge hugging the star: a plain linear fill from
+        // the eater's starting size (empty) to this star's required size
+        // (full). No dot-counting, no steps - just current size against
+        // the same two numbers every time, so it's always legible.
         const gaugeRadius = dotRadius + 8;
-        const stepsNeeded = getBigDotStepsNeeded();
         const progress = getBigDotProgress();
         ctx.lineWidth = 3;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, gaugeRadius, 0, Math.PI * 2);
         ctx.stroke();
-        for (let s = 1; s < stepsNeeded; s++) {
-          const angle = -Math.PI / 2 + (Math.PI * 2 * s) / stepsNeeded;
-          ctx.beginPath();
-          ctx.moveTo(dot.x + Math.cos(angle) * (gaugeRadius - 2), dot.y + Math.sin(angle) * (gaugeRadius - 2));
-          ctx.lineTo(dot.x + Math.cos(angle) * (gaugeRadius + 2), dot.y + Math.sin(angle) * (gaugeRadius + 2));
-          ctx.stroke();
-        }
         if (progress > 0) {
           ctx.strokeStyle = '#ffffff';
           ctx.beginPath();
