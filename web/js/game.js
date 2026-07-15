@@ -345,16 +345,17 @@ const CHEAT_TIMEOUT_MS = 5000;
 const player = {
   x: 50,
   y: 300,
-  radius: 15,
   vx: 0,
   vy: 0,
+  radius: 15,
   speed: BASE_PLAYER_SPEED,
   jumpForce: BASE_JUMP_FORCE,
+  grounded: false,
+  facingLeft: false,
   speedBoostTimer: 0,
   invincibleTimer: 0,
   boostedJumpActive: false,
-  grounded: false,
-  facingLeft: false
+  spitAnimationTimer: 0
 };
 
 // Controls mapping
@@ -1029,6 +1030,7 @@ function resetPlayer(preserveRadius = false) {
   player.invincibleTimer = INVINCIBILITY_FRAMES;
   player.boostedJumpActive = false;
   player.grounded = false;
+  player.spitAnimationTimer = 0;
   ensureLevelSolvable();
 }
 
@@ -1038,6 +1040,7 @@ function updateHUD() {
   const hasHalfHeart = lives - fullHearts >= 0.5;
   livesVal.textContent = `${'❤'.repeat(fullHearts)}${hasHalfHeart ? '💔' : ''}`;
   setTranslatedText(levelVal, 'level_hud_value', { level, rank: getRankName(level) });
+  resetSizeBtn.disabled = (player.radius <= 15);
 }
 
 function handleCheatInput(keyChar) {
@@ -1057,6 +1060,9 @@ function handleCheatInput(keyChar) {
 function triggerSizeReset() {
   if (!gameActive) return;
   if (player.radius <= 15) return; // Cannot deflate below baseline
+
+  // Trigger spit animation
+  player.spitAnimationTimer = 20;
 
   // Deflate by one star's worth
   player.radius = Math.max(15, player.radius / 1.05);
@@ -1356,6 +1362,9 @@ function update() {
   }
   if (player.invincibleTimer > 0) {
     player.invincibleTimer--;
+  }
+  if (player.spitAnimationTimer > 0) {
+    player.spitAnimationTimer--;
   }
 
   // Horizontal Movement
@@ -1854,113 +1863,172 @@ function draw() {
     ctx.restore();
   }
 
-  // Outer green body path with cutout mouth gap
-  ctx.fillStyle = '#3da842';
-  ctx.beginPath();
-  if (!player.facingLeft) {
-    // Facing Right
-    ctx.moveTo(bodyLeft, bodyTop); // Top-left
-    ctx.lineTo(bodyRight, bodyTop); // Top-right
-    ctx.lineTo(bodyRight, upperCeilingY);  // Down to mouth top
-    ctx.lineTo(player.x - mouthBackOffset, upperCeilingY);   // In to mouth back
-    ctx.lineTo(player.x - mouthBackOffset, lowerFloorY);     // Down to mouth bottom
-    ctx.lineTo(bodyRight, lowerFloorY);    // Out to mouth bottom
-    ctx.lineTo(bodyRight, bodyBottom);   // Down to bottom-right
-    ctx.lineTo(bodyLeft, bodyBottom);   // Left to bottom-left
+  const isSpitting = player.spitAnimationTimer > 0;
+  if (isSpitting) {
+    // Outer green body path (Spit pose looking up)
+    const mouthWidth = 14 * scale;
+    const mouthDepth = 12 * scale;
+    ctx.fillStyle = '#3da842';
+    ctx.beginPath();
+    ctx.moveTo(bodyLeft, bodyTop);
+    ctx.lineTo(player.x - mouthWidth / 2, bodyTop);
+    ctx.lineTo(player.x - mouthWidth / 2, bodyTop + mouthDepth);
+    ctx.lineTo(player.x + mouthWidth / 2, bodyTop + mouthDepth);
+    ctx.lineTo(player.x + mouthWidth / 2, bodyTop);
+    ctx.lineTo(bodyRight, bodyTop);
+    ctx.lineTo(bodyRight, bodyBottom);
+    ctx.lineTo(bodyLeft, bodyBottom);
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw Tongue (Spit pose)
+    ctx.fillStyle = '#ff3366';
+    ctx.beginPath();
+    ctx.arc(player.x, bodyTop + mouthDepth, 4 * scale, Math.PI, 0);
+    ctx.fill();
+
+    // Draw Teeth (Spit pose)
+    ctx.fillStyle = '#f3ca20';
+    ctx.beginPath();
+    ctx.moveTo(player.x - 5 * scale, bodyTop + mouthDepth);
+    ctx.lineTo(player.x - 3 * scale, bodyTop + mouthDepth - 3 * scale);
+    ctx.lineTo(player.x - 1 * scale, bodyTop + mouthDepth);
+    ctx.moveTo(player.x + 1 * scale, bodyTop + mouthDepth);
+    ctx.lineTo(player.x + 3 * scale, bodyTop + mouthDepth - 3 * scale);
+    ctx.lineTo(player.x + 5 * scale, bodyTop + mouthDepth);
+    ctx.fill();
+
+    // Draw Eye (looking up)
+    const eyeX = player.facingLeft ? (player.x + 7 * scale) : (player.x - 7 * scale);
+    const eyeY = player.y - 3 * scale;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(eyeX, eyeY, 4.5 * scale, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#000000';
+    ctx.beginPath();
+    ctx.arc(eyeX, eyeY - 2.5 * scale, 1.5 * scale, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw Cap (tilted to the left)
+    ctx.fillStyle = '#ff3333';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1.5 * scale;
+    ctx.beginPath();
+    ctx.arc(player.x - 9 * scale, player.y - 10 * scale, 5 * scale, Math.PI * 0.8, Math.PI * 1.8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
   } else {
-    // Facing Left
-    ctx.moveTo(bodyRight, bodyTop); // Top-right
-    ctx.lineTo(bodyLeft, bodyTop); // Top-left
-    ctx.lineTo(bodyLeft, upperCeilingY);  // Down to mouth top
-    ctx.lineTo(player.x + mouthBackOffset, upperCeilingY);   // In to mouth back
-    ctx.lineTo(player.x + mouthBackOffset, lowerFloorY);     // Down to mouth bottom
-    ctx.lineTo(bodyLeft, lowerFloorY);    // Out to mouth bottom
-    ctx.lineTo(bodyLeft, bodyBottom);   // Down to bottom-left
-    ctx.lineTo(bodyRight, bodyBottom);   // Right to bottom-right
+    // Outer green body path with cutout mouth gap
+    ctx.fillStyle = '#3da842';
+    ctx.beginPath();
+    if (!player.facingLeft) {
+      // Facing Right
+      ctx.moveTo(bodyLeft, bodyTop); // Top-left
+      ctx.lineTo(bodyRight, bodyTop); // Top-right
+      ctx.lineTo(bodyRight, upperCeilingY);  // Down to mouth top
+      ctx.lineTo(player.x - mouthBackOffset, upperCeilingY);   // In to mouth back
+      ctx.lineTo(player.x - mouthBackOffset, lowerFloorY);     // Down to mouth bottom
+      ctx.lineTo(bodyRight, lowerFloorY);    // Out to mouth bottom
+      ctx.lineTo(bodyRight, bodyBottom);   // Down to bottom-right
+      ctx.lineTo(bodyLeft, bodyBottom);   // Left to bottom-left
+    } else {
+      // Facing Left
+      ctx.moveTo(bodyRight, bodyTop); // Top-right
+      ctx.lineTo(bodyLeft, bodyTop); // Top-left
+      ctx.lineTo(bodyLeft, upperCeilingY);  // Down to mouth top
+      ctx.lineTo(player.x + mouthBackOffset, upperCeilingY);   // In to mouth back
+      ctx.lineTo(player.x + mouthBackOffset, lowerFloorY);     // Down to mouth bottom
+      ctx.lineTo(bodyLeft, lowerFloorY);    // Out to mouth bottom
+      ctx.lineTo(bodyLeft, bodyBottom);   // Down to bottom-left
+      ctx.lineTo(bodyRight, bodyBottom);   // Right to bottom-right
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw Tongue (red shape at back wall)
+    ctx.fillStyle = '#ff3366';
+    ctx.beginPath();
+    const tongueHeight = Math.min(6 * scale, mouthHeight * 0.6);
+    if (!player.facingLeft) {
+      ctx.moveTo(player.x - mouthBackOffset, mouthCenterY - tongueHeight / 2);
+      ctx.quadraticCurveTo(player.x + 3 * scale, mouthCenterY, player.x - mouthBackOffset, mouthCenterY + tongueHeight / 2);
+    } else {
+      ctx.moveTo(player.x + mouthBackOffset, mouthCenterY - tongueHeight / 2);
+      ctx.quadraticCurveTo(player.x - 3 * scale, mouthCenterY, player.x + mouthBackOffset, mouthCenterY + tongueHeight / 2);
+    }
+    ctx.fill();
+
+    // Draw Teeth (yellow small triangular teeth inside the mouth gap)
+    const toothHeight = Math.min(3 * scale, mouthHeight / 2);
+    ctx.fillStyle = '#f3ca20';
+    if (!player.facingLeft) {
+      // Upper teeth pointing down
+      ctx.beginPath();
+      ctx.moveTo(player.x + 2 * scale, upperCeilingY);
+      ctx.lineTo(player.x + 4.5 * scale, upperCeilingY + toothHeight);
+      ctx.lineTo(player.x + 7 * scale, upperCeilingY);
+      ctx.moveTo(player.x + 9 * scale, upperCeilingY);
+      ctx.lineTo(player.x + 11.5 * scale, upperCeilingY + toothHeight);
+      ctx.lineTo(player.x + 14 * scale, upperCeilingY);
+      ctx.fill();
+
+      // Lower teeth pointing up
+      ctx.beginPath();
+      ctx.moveTo(player.x + 2 * scale, lowerFloorY);
+      ctx.lineTo(player.x + 4.5 * scale, lowerFloorY - toothHeight);
+      ctx.lineTo(player.x + 7 * scale, lowerFloorY);
+      ctx.moveTo(player.x + 9 * scale, lowerFloorY);
+      ctx.lineTo(player.x + 11.5 * scale, lowerFloorY - toothHeight);
+      ctx.lineTo(player.x + 14 * scale, lowerFloorY);
+      ctx.fill();
+    } else {
+      // Upper teeth pointing down
+      ctx.beginPath();
+      ctx.moveTo(player.x - 7 * scale, upperCeilingY);
+      ctx.lineTo(player.x - 4.5 * scale, upperCeilingY + toothHeight);
+      ctx.lineTo(player.x - 2 * scale, upperCeilingY);
+      ctx.moveTo(player.x - 14 * scale, upperCeilingY);
+      ctx.lineTo(player.x - 11.5 * scale, upperCeilingY + toothHeight);
+      ctx.lineTo(player.x - 9 * scale, upperCeilingY);
+      ctx.fill();
+
+      // Lower teeth pointing up
+      ctx.beginPath();
+      ctx.moveTo(player.x - 7 * scale, lowerFloorY);
+      ctx.lineTo(player.x - 4.5 * scale, lowerFloorY - toothHeight);
+      ctx.lineTo(player.x - 2 * scale, lowerFloorY);
+      ctx.moveTo(player.x - 14 * scale, lowerFloorY);
+      ctx.lineTo(player.x - 11.5 * scale, lowerFloorY - toothHeight);
+      ctx.lineTo(player.x - 9 * scale, lowerFloorY);
+      ctx.fill();
+    }
+
+    // Draw Eye (white circle + black pupil)
+    const eyeX = player.facingLeft ? (player.x + 7 * scale) : (player.x - 7 * scale);
+    const eyeY = player.y - 7 * scale;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(eyeX, eyeY, 4.5 * scale, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#000000';
+    ctx.beginPath();
+    ctx.arc(eyeX, eyeY, 1.5 * scale, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw Cap (red dome on top of the head)
+    ctx.fillStyle = '#ff3333';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1.5 * scale;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y - player.radius, 5 * scale, Math.PI, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
   }
-  ctx.closePath();
-  ctx.fill();
-
-  // Draw Tongue (red shape at back wall)
-  ctx.fillStyle = '#ff3366';
-  ctx.beginPath();
-  const tongueHeight = Math.min(6 * scale, mouthHeight * 0.6);
-  if (!player.facingLeft) {
-    ctx.moveTo(player.x - mouthBackOffset, mouthCenterY - tongueHeight / 2);
-    ctx.quadraticCurveTo(player.x + 3 * scale, mouthCenterY, player.x - mouthBackOffset, mouthCenterY + tongueHeight / 2);
-  } else {
-    ctx.moveTo(player.x + mouthBackOffset, mouthCenterY - tongueHeight / 2);
-    ctx.quadraticCurveTo(player.x - 3 * scale, mouthCenterY, player.x + mouthBackOffset, mouthCenterY + tongueHeight / 2);
-  }
-  ctx.fill();
-
-  // Draw Teeth (yellow small triangular teeth inside the mouth gap)
-  const toothHeight = Math.min(3 * scale, mouthHeight / 2);
-  ctx.fillStyle = '#f3ca20';
-  if (!player.facingLeft) {
-    // Upper teeth pointing down
-    ctx.beginPath();
-    ctx.moveTo(player.x + 2 * scale, upperCeilingY);
-    ctx.lineTo(player.x + 4.5 * scale, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x + 7 * scale, upperCeilingY);
-    ctx.moveTo(player.x + 9 * scale, upperCeilingY);
-    ctx.lineTo(player.x + 11.5 * scale, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x + 14 * scale, upperCeilingY);
-    ctx.fill();
-
-    // Lower teeth pointing up
-    ctx.beginPath();
-    ctx.moveTo(player.x + 2 * scale, lowerFloorY);
-    ctx.lineTo(player.x + 4.5 * scale, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x + 7 * scale, lowerFloorY);
-    ctx.moveTo(player.x + 9 * scale, lowerFloorY);
-    ctx.lineTo(player.x + 11.5 * scale, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x + 14 * scale, lowerFloorY);
-    ctx.fill();
-  } else {
-    // Upper teeth pointing down
-    ctx.beginPath();
-    ctx.moveTo(player.x - 7 * scale, upperCeilingY);
-    ctx.lineTo(player.x - 4.5 * scale, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x - 2 * scale, upperCeilingY);
-    ctx.moveTo(player.x - 14 * scale, upperCeilingY);
-    ctx.lineTo(player.x - 11.5 * scale, upperCeilingY + toothHeight);
-    ctx.lineTo(player.x - 9 * scale, upperCeilingY);
-    ctx.fill();
-
-    // Lower teeth pointing up
-    ctx.beginPath();
-    ctx.moveTo(player.x - 7 * scale, lowerFloorY);
-    ctx.lineTo(player.x - 4.5 * scale, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x - 2 * scale, lowerFloorY);
-    ctx.moveTo(player.x - 14 * scale, lowerFloorY);
-    ctx.lineTo(player.x - 11.5 * scale, lowerFloorY - toothHeight);
-    ctx.lineTo(player.x - 9 * scale, lowerFloorY);
-    ctx.fill();
-  }
-
-  // Draw Eye (white circle + black pupil)
-  const eyeX = player.facingLeft ? (player.x + 7 * scale) : (player.x - 7 * scale);
-  const eyeY = player.y - 7 * scale;
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(eyeX, eyeY, 4.5 * scale, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#000000';
-  ctx.beginPath();
-  ctx.arc(eyeX, eyeY, 1.5 * scale, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Draw Cap (red dome on top of the head)
-  ctx.fillStyle = '#ff3333';
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1.5 * scale;
-  ctx.beginPath();
-  ctx.arc(player.x, player.y - player.radius, 5 * scale, Math.PI, 0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
 
   // Draw Legs (two simple black stick legs with horizontal foot lines)
   ctx.strokeStyle = '#000000';
