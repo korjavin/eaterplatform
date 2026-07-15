@@ -1139,6 +1139,14 @@ function reachJumpTime(dy) {
   return (REACH_JUMP_FORCE + Math.sqrt(disc)) / GRAVITY;
 }
 
+// A bigger eater can't gain as much altitude from a jump: reach shrinks in
+// proportion to how far the current radius has grown past the starting
+// size, so growth alone - not just low ceilings - can put a jump out of
+// reach.
+function effectiveMaxRise(radius) {
+  return REACH_FULL_MAX_RISE * Math.min(1, BIG_DOT_BASE_RADIUS / radius);
+}
+
 // Whether the player's head clears every platform along the way from
 // (x0,y0) to (x1,y1) - bigger radius means less headroom, which is how
 // size alone can make an otherwise in-range jump unreachable. excludePlat
@@ -1161,7 +1169,7 @@ function jumpPathClear(x0, y0, x1, y1, radius, excludePlat) {
 
 function canReachPoint(x0, y0, x1, y1, radius, excludePlat) {
   const dy = y1 - y0;
-  if (dy < 0 && -dy > REACH_FULL_MAX_RISE) return false;
+  if (dy < 0 && -dy > effectiveMaxRise(radius)) return false;
   const t = reachJumpTime(dy);
   if (t === null) return false;
   if (Math.abs(x1 - x0) > REACH_SPEED * t) return false;
