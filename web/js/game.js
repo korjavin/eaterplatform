@@ -388,7 +388,8 @@ const LEVELS = {
       { x: 410, y: 190, collected: false },
       { x: 610, y: 120, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 100, y: 170, collected: false },
-      { x: 380, y: 350, collected: false }
+      { x: 380, y: 350, collected: false },
+      { x: 650, y: 350, collected: false }
     ],
     enemies: [
       { x: 400, y: 205, width: 20, height: 15, vx: 1, range: 40, startX: 400 },
@@ -432,7 +433,9 @@ const LEVELS = {
       { x: 360, y: 190, collected: false },
       { x: 560, y: 110, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 260, y: 80, collected: false },
-      { x: 300, y: 350, collected: false, red: true }
+      { x: 300, y: 350, collected: false, red: true },
+      { x: 50, y: 350, collected: false },
+      { x: 650, y: 350, collected: false }
     ],
     enemies: [
       { x: 350, y: 205, width: 20, height: 15, vx: 1.5, range: 40, startX: 350 }
@@ -453,7 +456,8 @@ const LEVELS = {
       { x: 280, y: 210, collected: false },
       { x: 450, y: 140, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 620, y: 210, collected: false },
-      { x: 740, y: 280, collected: false }
+      { x: 740, y: 280, collected: false },
+      { x: 150, y: 350, collected: false }
     ],
     enemies: [
       { x: 270, y: 225, width: 20, height: 15, vx: 1.6, range: 40, startX: 270 },
@@ -474,7 +478,9 @@ const LEVELS = {
       { x: 475, y: 270, collected: false },
       { x: 350, y: 180, collected: false },
       { x: 350, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS },
-      { x: 400, y: 350, collected: false, red: true }
+      { x: 400, y: 350, collected: false, red: true },
+      { x: 50, y: 350, collected: false },
+      { x: 650, y: 350, collected: false }
     ],
     enemies: [
       { x: 215, y: 285, width: 20, height: 15, vx: 1.4, range: 55, startX: 215 },
@@ -497,7 +503,8 @@ const LEVELS = {
       { x: 410, y: 260, collected: false, big: true, radius: BIG_DOT_RADIUS },
       { x: 560, y: 170, collected: false },
       { x: 710, y: 260, collected: false },
-      { x: 650, y: 350, collected: false, green: true }
+      { x: 650, y: 350, collected: false, green: true },
+      { x: 400, y: 350, collected: false }
     ],
     enemies: [
       { x: 250, y: 185, width: 20, height: 15, vx: 1.8, range: 40, startX: 250 },
