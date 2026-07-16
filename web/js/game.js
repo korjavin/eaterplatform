@@ -75,7 +75,21 @@ const TRANSLATIONS = {
     leaderboard_unavailable: 'Leaderboard unavailable.',
     open_rules_btn: 'Game Rules',
     rules_title: 'Game Rules & Mentor Tips',
-    close_rules_btn: 'Let\'s Play!'
+    close_rules_btn: 'Let\'s Play!',
+    mentor_label: 'Mentor:',
+    eater_label: 'Eater:',
+    rule_dialogue_1: 'Listen up, green monster! Eat all dots and reach the cyan portal. Simple, right?',
+    rule_dialogue_2: 'Chomp! What about the big orange stars? They look juicy!',
+    rule_dialogue_3: "You're too small! Eat standard yellow dots to grow to size 18 first. But warning: as you grow, you get heavier and jump lower!",
+    rule_dialogue_4: 'Oh no! Can I get stuck?',
+    rule_dialogue_5: 'Yes! If you get too heavy to climb, click the "Reset Size" button or press "R" to deflate. It spits one of your collected stars back onto the field, but saves your run! Alternatively, eat Red Stars to shrink without any penalty!',
+    rule_dialogue_6: 'And the glowing green stars?',
+    rule_dialogue_7: "They give you massive speed and jump height for 10 seconds, but you'll slip and slide when landing! Don't slip off the platforms!",
+    rule_dialogue_8: 'What happens if I fall?',
+    rule_dialogue_9: 'Falling off the bottom of the screen or touching red hunters costs 1 life. But perfect runs (no damage) reward you with +2 lives instead of +1 at the portal!',
+    rule_dialogue_10: "Sweet! Let's chomp!",
+    rule_dialogue_11: 'And one last thing: do NOT cheat!',
+    rule_dialogue_12: 'Uh... chomp? *whistles innocently*'
   },
   de: {
     title: '🟡 Eater Platformer',
@@ -127,7 +141,21 @@ const TRANSLATIONS = {
     leaderboard_unavailable: 'Bestenliste nicht verfügbar.',
     open_rules_btn: 'Spielregeln',
     rules_title: 'Spielregeln & Mentor-Tipps',
-    close_rules_btn: 'Lass uns spielen!'
+    close_rules_btn: 'Lass uns spielen!',
+    mentor_label: 'Mentor:',
+    eater_label: 'Eater:',
+    rule_dialogue_1: 'Hör zu, grünes Monster! Friss alle Punkte und erreiche das cyanfarbene Portal. Einfach, oder?',
+    rule_dialogue_2: 'Mampf! Was ist mit den großen orangenen Sternen? Die sehen saftig aus!',
+    rule_dialogue_3: 'Du bist zu klein! Friss zuerst normale gelbe Punkte, um auf Größe 18 zu wachsen. Aber Warnung: Je größer du wirst, desto schwerer wirst du und desto niedriger springst du!',
+    rule_dialogue_4: 'Oh nein! Kann ich stecken bleiben?',
+    rule_dialogue_5: 'Ja! Wenn du zu schwer zum Klettern wirst, klicke auf die Schaltfläche "Größe zurücksetzen" oder drücke "R", um Luft abzulassen. Es spuckt einen deiner gesammelten Sterne zurück auf das Feld, rettet aber deinen Lauf! Alternativ kannst du rote Sterne essen, um ohne Strafe zu schrumpfen!',
+    rule_dialogue_6: 'Und die leuchtend grünen Sterne?',
+    rule_dialogue_7: 'Sie verleihen dir 10 Sekunden lang enorme Geschwindigkeit und Sprunghöhe, aber bei der Landung wirst du rutschen und schlindern! Rutsche nicht von den Plattformen!',
+    rule_dialogue_8: 'Was passiert, wenn ich herunterfalle?',
+    rule_dialogue_9: 'Das Herunterfallen vom unteren Bildschirmrand oder das Berühren roter Jäger kostet 1 Leben. Aber fehlerfreie Läufe (ohne Schaden) belohnen dich am Portal mit +2 Leben anstelle von +1!',
+    rule_dialogue_10: 'Süß! Lass uns mampfen!',
+    rule_dialogue_11: 'Und eine letzte Sache: Betrüge NICHT!',
+    rule_dialogue_12: 'Äh... mampf? *pfeift unschuldig*'
   },
   ru: {
     title: '🟡 Eater Platformer',
@@ -179,7 +207,21 @@ const TRANSLATIONS = {
     leaderboard_unavailable: 'Таблица лидеров недоступна.',
     open_rules_btn: 'Правила игры',
     rules_title: 'Правила игры и советы ментора',
-    close_rules_btn: 'Поехали!'
+    close_rules_btn: 'Поехали!',
+    mentor_label: 'Ментор:',
+    eater_label: 'Едок:',
+    rule_dialogue_1: 'Слушай сюда, зеленый монстр! Сьешь все точки и доберись до бирюзового портала. Просто, да?',
+    rule_dialogue_2: 'Хрум! А как же большие оранжевые звезды? Выглядят сочно!',
+    rule_dialogue_3: 'Ты слишком мал! Сначала ешь обычные желтые точки, чтобы вырасти до размера 18. Но предупреждаю: по мере роста ты становишься тяжелее и прыгаешь ниже!',
+    rule_dialogue_4: 'О нет! Я могу застрять?',
+    rule_dialogue_5: 'Да! Если ты станешь слишком тяжелым для подъема, нажми кнопку «Сбросить размер» или клавишу «R», чтобы сдуться. Это вернет одну из собранных звезд обратно на поле, но спасет твою попытку! Либо ешь красные звезды, чтобы уменьшаться без штрафов!',
+    rule_dialogue_6: 'А светящиеся зеленые звезды?',
+    rule_dialogue_7: 'Они дают огромную скорость и высоту прыжка на 10 секунд, но при приземлении ты будешь скользить! Смотри не соскользни с платформ!',
+    rule_dialogue_8: 'Что будет, если я упаду?',
+    rule_dialogue_9: 'Падение за нижний край экрана или касание красных охотников стоит 1 жизни. Но идеальные уровни (без потерь) вознаграждают тебя +2 жизнями вместо +1 на выходе!',
+    rule_dialogue_10: 'Круто! Погнали хрустеть!',
+    rule_dialogue_11: 'И последнее: НЕ читери!',
+    rule_dialogue_12: 'Э-э... хрум? *невинно насвистывает*'
   }
 };
 
