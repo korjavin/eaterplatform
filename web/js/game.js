@@ -88,6 +88,11 @@ const TRANSLATIONS = {
     rule_dialogue_8: 'What happens if I fall?',
     rule_dialogue_9: 'Falling off the bottom of the screen or touching red hunters costs 1 life. But perfect runs (no damage) reward you with +2 lives instead of +1 at the portal!',
     rule_dialogue_10: "Sweet! Let's chomp!",
+    rule_dialogue_silver_1: 'Wait, some stars turned silver! Are they special?',
+    rule_dialogue_silver_2: 'No, they are unreachable! Because you grew too big and heavy, you can no longer jump high enough to reach them. You need to shrink to turn them yellow and collectable again!',
+    rule_dialogue_silver_3: 'Ah! And how does spitting help?',
+    rule_dialogue_silver_4: 'When you press \'R\' or click \'Reset Size\', you spit a star. If that moving star hits an enemy, it destroys them instantly! Plus, you shrink so you can jump higher and reach those silver stars!',
+    rule_dialogue_silver_5: 'Wow, spitting stars is both a tool and a weapon! That\'s awesome!',
     rule_dialogue_11: 'And one last thing: do NOT cheat!',
     rule_dialogue_12: 'Uh... chomp? *whistles innocently*'
   },
@@ -154,6 +159,11 @@ const TRANSLATIONS = {
     rule_dialogue_8: 'Was passiert, wenn ich herunterfalle?',
     rule_dialogue_9: 'Das Herunterfallen vom unteren Bildschirmrand oder das Berühren roter Jäger kostet 1 Leben. Aber fehlerfreie Läufe (ohne Schaden) belohnen dich am Portal mit +2 Leben anstelle von +1!',
     rule_dialogue_10: 'Süß! Lass uns mampfen!',
+    rule_dialogue_silver_1: 'Warte, manche Sterne sind silber geworden! Sind sie etwas Besonderes?',
+    rule_dialogue_silver_2: 'Nein, sie sind unerreichbar! Weil du zu groß und schwer geworden bist, kannst du nicht mehr hoch genug springen, um sie zu erreichen. Du musst schrumpfen, damit sie wieder gelb und einsammelbar werden!',
+    rule_dialogue_silver_3: 'Ah! Und wie hilft Spucken?',
+    rule_dialogue_silver_4: 'Wenn du \'R\' drückst oder auf \'Größe zurücksetzen\' klickst, spuckst du einen Stern aus. Wenn dieser sich bewegende Stern einen Gegner trifft, zerstört er ihn sofort! Außerdem schrumpfst du, sodass du höher springen und diese silbernen Sterne erreichen kannst!',
+    rule_dialogue_silver_5: 'Wow, Sterne spucken is sowohl ein Werkzeug als auch eine Waffe! Das ist genial!',
     rule_dialogue_11: 'Und eine letzte Sache: Betrüge NICHT!',
     rule_dialogue_12: 'Äh... mampf? *pfeift unschuldig*'
   },
@@ -220,6 +230,11 @@ const TRANSLATIONS = {
     rule_dialogue_8: 'Что будет, если я упаду?',
     rule_dialogue_9: 'Падение за нижний край экрана или касание красных охотников стоит 1 жизни. Но идеальные уровни (без потерь) вознаграждают тебя +2 жизнями вместо +1 на выходе!',
     rule_dialogue_10: 'Круто! Погнали хрустеть!',
+    rule_dialogue_silver_1: 'Погоди, некоторые звезды стали серебряными! Они особенные?',
+    rule_dialogue_silver_2: 'Нет, они просто недосягаемы! Из-за того, что ты вырос слишком большим и тяжелым, ты больше не можешь прыгнуть достаточно высоко, чтобы достать их. Тебе нужно уменьшиться, чтобы они снова стали желтыми и доступными для сбора!',
+    rule_dialogue_silver_3: 'Ага! А как помогает плевок?',
+    rule_dialogue_silver_4: 'Когда ты нажимаешь \'R\' или «Сбросить размер», ты выплевываешь звезду. Если летящая звезда попадает во врага, она мгновенно уничтожает его! Кроме того, ты сам уменьшаешься, чтобы прыгать выше и дотягиваться до серебряных звезд!',
+    rule_dialogue_silver_5: 'Ого, плевок звездой — это и инструмент, и оружие! Крутотища!',
     rule_dialogue_11: 'И последнее: НЕ читери!',
     rule_dialogue_12: 'Э-э... хрум? *невинно насвистывает*'
   }
