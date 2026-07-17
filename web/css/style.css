@@ -358,11 +358,11 @@ header h1 {
 }
 
 .touch-btn {
-  width: clamp(52px, 13vw, 72px);
-  height: clamp(52px, 13vw, 72px);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  width: clamp(46px, 11vw, 60px);
+  height: clamp(46px, 11vw, 60px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 50%;
-  background: rgba(11, 12, 16, 0.3);
+  background: rgba(11, 12, 16, 0.22);
   color: var(--text-bright);
   font: 800 1.35rem/1 var(--font-family);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
@@ -426,20 +426,67 @@ header h1 {
   }
 }
 
-/* Larger touch targets on small screens */
-@media (max-width: 520px) {
-  .touch-btn {
-    width: clamp(60px, 18vw, 80px);
-    height: clamp(60px, 18vw, 80px);
-  }
-}
-
-/* Maximize play area in mobile landscape (keeps 2/1 via aspect-ratio) */
+/* Focused single-screen play area in mobile landscape: the game fills the
+   viewport (letterboxed via object-fit so nothing is cropped or zoomed) and
+   all the page chrome that's irrelevant during play is hidden. The HUD stats
+   and the Reset Size control stay visible. */
 @media (orientation: landscape) and (pointer: coarse) {
+  body {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  #app-container {
+    max-width: none;
+  }
+
+  header,
+  footer,
+  .how-to-play,
+  #leaderboard-panel {
+    display: none;
+  }
+
+  main {
+    width: 100%;
+  }
+
+  .game-card {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    border: none;
+  }
+
   .canvas-wrapper {
-    width: min(100%, 200vh);
-    width: min(100%, 200dvh);
-    margin: 0 auto;
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  #game-canvas {
+    object-fit: contain;
+  }
+
+  .game-card .controls-panel {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 6px 12px;
+    background: none;
+  }
+
+  .stats {
+    gap: 8px;
+  }
+
+  .stat-box {
+    padding: 4px 8px;
+  }
+
+  .reset-size-btn {
+    margin-top: 0;
   }
 }
 
