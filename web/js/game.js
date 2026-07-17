@@ -55,6 +55,15 @@ const TRANSLATIONS = {
     rank_9: 'Green Legend',
     rank_10: 'Ascended Eater',
     rank_11: 'Chomping Deity',
+    rank_12: 'Fiesta Feaster',
+    rank_13: 'Flamenco Devourer',
+    rank_14: 'Starship Snacker',
+    rank_15: 'Sakura Sampler',
+    rank_16: 'Pharaoh Glutton',
+    rank_17: 'Deep Sea Diner',
+    rank_18: 'Frost Feaster',
+    rank_19: 'Neon Nomnivore',
+    rank_20: 'Molten Monarch',
     how_to_play: 'How to Play',
     move_instruction: 'Use ← → or A D to Move',
     jump_instruction: 'Press Space or W to Jump',
@@ -126,6 +135,15 @@ const TRANSLATIONS = {
     rank_9: 'Grüne Legende',
     rank_10: 'Aufgestiegener Eater',
     rank_11: 'Kauende Gottheit',
+    rank_12: 'Fiesta-Fresser',
+    rank_13: 'Flamenco-Verschlinger',
+    rank_14: 'Raumschiff-Snacker',
+    rank_15: 'Sakura-Koster',
+    rank_16: 'Pharao-Vielfraß',
+    rank_17: 'Tiefsee-Tafler',
+    rank_18: 'Frost-Fresser',
+    rank_19: 'Neon-Mampfer',
+    rank_20: 'Geschmolzener Monarch',
     how_to_play: 'Spielanleitung',
     move_instruction: 'Nutze ← → oder A D zum Bewegen',
     jump_instruction: 'Drücke Leertaste oder W zum Springen',
@@ -197,6 +215,15 @@ const TRANSLATIONS = {
     rank_9: 'Зеленая легенда',
     rank_10: 'Вознесенный едок',
     rank_11: 'Жующее божество',
+    rank_12: 'Фиеста-обжора',
+    rank_13: 'Фламенко-пожиратель',
+    rank_14: 'Звездолётный снекер',
+    rank_15: 'Сакура-дегустатор',
+    rank_16: 'Фараонов обжора',
+    rank_17: 'Глубоководный едок',
+    rank_18: 'Морозный обжора',
+    rank_19: 'Неоновый жеватель',
+    rank_20: 'Расплавленный монарх',
     how_to_play: 'Как играть',
     move_instruction: 'Используй ← → или A D для движения',
     jump_instruction: 'Нажми Пробел или W для прыжка',
@@ -716,6 +743,245 @@ const LEVELS = {
       { x: 395, y: 135, width: 20, height: 15, vx: -2.0, range: 225, startX: 395 }
     ],
     portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  12: {
+    // Level 12 — Mexico (fiesta). Ascending zigzag: hop right, then left, to the peak.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 80, y: 300, width: 130, height: 15 },
+      { x: 300, y: 230, width: 130, height: 15 },
+      { x: 520, y: 160, width: 130, height: 15 },
+      { x: 300, y: 90, width: 130, height: 15 }
+    ],
+    dots: [
+      { x: 145, y: 270, collected: false },
+      { x: 365, y: 200, collected: false },
+      { x: 585, y: 130, collected: false },
+      { x: 365, y: 60, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 100, y: 350, collected: false },
+      { x: 700, y: 350, collected: false }
+    ],
+    enemies: [
+      { x: 360, y: 215, width: 20, height: 15, vx: 1.6, range: 45, startX: 360 },
+      { x: 580, y: 145, width: 20, height: 15, vx: -1.6, range: 45, startX: 580 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  13: {
+    // Level 13 — Spain (flamenco). Twin towers linked by a high bridge.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 80, y: 300, width: 140, height: 15 },
+      { x: 80, y: 210, width: 140, height: 15 },
+      { x: 80, y: 120, width: 140, height: 15 },
+      { x: 580, y: 300, width: 140, height: 15 },
+      { x: 580, y: 210, width: 140, height: 15 },
+      { x: 580, y: 120, width: 140, height: 15 },
+      { x: 330, y: 90, width: 140, height: 15 }
+    ],
+    dots: [
+      { x: 150, y: 270, collected: false },
+      { x: 150, y: 180, collected: false },
+      { x: 650, y: 270, collected: false },
+      { x: 650, y: 180, collected: false },
+      { x: 150, y: 90, collected: false },
+      { x: 650, y: 90, collected: false },
+      { x: 400, y: 60, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, green: true }
+    ],
+    enemies: [
+      { x: 150, y: 105, width: 20, height: 15, vx: 1.4, range: 55, startX: 150 },
+      { x: 650, y: 105, width: 20, height: 15, vx: -1.4, range: 55, startX: 650 }
+    ],
+    portal: { x: 380, y: 320, width: 40, height: 60, active: false }
+  },
+  14: {
+    // Level 14 — Sci-fi (space station). Symmetric pyramid climb from both flanks.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 40, y: 300, width: 120, height: 15 },
+      { x: 640, y: 300, width: 120, height: 15 },
+      { x: 180, y: 220, width: 120, height: 15 },
+      { x: 500, y: 220, width: 120, height: 15 },
+      { x: 340, y: 140, width: 120, height: 15 },
+      { x: 340, y: 60, width: 120, height: 15 }
+    ],
+    dots: [
+      { x: 100, y: 270, collected: false },
+      { x: 700, y: 270, collected: false },
+      { x: 240, y: 190, collected: false },
+      { x: 560, y: 190, collected: false },
+      { x: 400, y: 110, collected: false },
+      { x: 400, y: 30, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, red: true }
+    ],
+    enemies: [
+      { x: 200, y: 205, width: 20, height: 15, vx: 1.7, range: 60, startX: 200 },
+      { x: 520, y: 205, width: 20, height: 15, vx: -1.7, range: 60, startX: 520 }
+    ],
+    portal: { x: 380, y: 320, width: 40, height: 60, active: false }
+  },
+  15: {
+    // Level 15 — Japan (sakura). Wide descending terraces sweeping left to right.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 550, y: 300, width: 250, height: 15 },
+      { x: 400, y: 220, width: 250, height: 15 },
+      { x: 250, y: 140, width: 250, height: 15 },
+      { x: 100, y: 70, width: 250, height: 15 }
+    ],
+    dots: [
+      { x: 680, y: 270, collected: false },
+      { x: 520, y: 190, collected: false },
+      { x: 370, y: 110, collected: false },
+      { x: 220, y: 40, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 600, y: 350, collected: false },
+      { x: 150, y: 350, collected: false, green: true }
+    ],
+    enemies: [
+      { x: 640, y: 285, width: 20, height: 15, vx: 2.0, range: 100, startX: 640 },
+      { x: 340, y: 125, width: 20, height: 15, vx: 1.8, range: 100, startX: 340 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  16: {
+    // Level 16 — Egypt (desert). Scattered stepping stones with no easy straight line.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 120, y: 310, width: 90, height: 15 },
+      { x: 320, y: 300, width: 90, height: 15 },
+      { x: 540, y: 320, width: 90, height: 15 },
+      { x: 230, y: 220, width: 90, height: 15 },
+      { x: 450, y: 210, width: 90, height: 15 },
+      { x: 340, y: 130, width: 90, height: 15 },
+      { x: 660, y: 230, width: 90, height: 15 }
+    ],
+    dots: [
+      { x: 165, y: 280, collected: false },
+      { x: 365, y: 270, collected: false },
+      { x: 585, y: 290, collected: false },
+      { x: 275, y: 190, collected: false },
+      { x: 495, y: 180, collected: false },
+      { x: 705, y: 200, collected: false },
+      { x: 385, y: 100, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 60, y: 350, collected: false }
+    ],
+    enemies: [
+      { x: 320, y: 285, width: 20, height: 15, vx: 1.5, range: 35, startX: 320 },
+      { x: 450, y: 195, width: 20, height: 15, vx: 1.5, range: 35, startX: 450 }
+    ],
+    portal: { x: 20, y: 320, width: 40, height: 60, active: false }
+  },
+  17: {
+    // Level 17 — Atlantis (undersea). Central tower flanked by side ledges.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 40, y: 290, width: 130, height: 15 },
+      { x: 630, y: 290, width: 130, height: 15 },
+      { x: 340, y: 300, width: 120, height: 15 },
+      { x: 340, y: 210, width: 120, height: 15 },
+      { x: 150, y: 200, width: 120, height: 15 },
+      { x: 530, y: 200, width: 120, height: 15 },
+      { x: 340, y: 120, width: 120, height: 15 }
+    ],
+    dots: [
+      { x: 105, y: 260, collected: false },
+      { x: 695, y: 260, collected: false },
+      { x: 400, y: 270, collected: false },
+      { x: 210, y: 170, collected: false },
+      { x: 590, y: 170, collected: false },
+      { x: 400, y: 180, collected: false },
+      { x: 400, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, red: true }
+    ],
+    enemies: [
+      { x: 340, y: 195, width: 20, height: 15, vx: 1.9, range: 50, startX: 340 },
+      { x: 150, y: 185, width: 20, height: 15, vx: 1.6, range: 40, startX: 150 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  18: {
+    // Level 18 — Nordic (frost). Long descending staircase, then a jump to the peak.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 640, y: 310, width: 120, height: 15 },
+      { x: 460, y: 240, width: 120, height: 15 },
+      { x: 280, y: 170, width: 120, height: 15 },
+      { x: 100, y: 100, width: 120, height: 15 },
+      { x: 340, y: 90, width: 120, height: 15 }
+    ],
+    dots: [
+      { x: 700, y: 280, collected: false },
+      { x: 520, y: 210, collected: false },
+      { x: 340, y: 140, collected: false },
+      { x: 160, y: 70, collected: false },
+      { x: 400, y: 60, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, green: true },
+      { x: 100, y: 350, collected: false }
+    ],
+    enemies: [
+      { x: 460, y: 225, width: 20, height: 15, vx: 1.8, range: 45, startX: 460 },
+      { x: 280, y: 155, width: 20, height: 15, vx: -1.8, range: 45, startX: 280 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
+  },
+  19: {
+    // Level 19 — Cyberpunk (neon). Split paths across four columns meeting at the top.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 60, y: 300, width: 110, height: 15 },
+      { x: 250, y: 300, width: 110, height: 15 },
+      { x: 440, y: 300, width: 110, height: 15 },
+      { x: 630, y: 300, width: 110, height: 15 },
+      { x: 150, y: 210, width: 110, height: 15 },
+      { x: 540, y: 210, width: 110, height: 15 },
+      { x: 345, y: 210, width: 110, height: 15 },
+      { x: 345, y: 120, width: 110, height: 15 }
+    ],
+    dots: [
+      { x: 115, y: 270, collected: false },
+      { x: 305, y: 270, collected: false },
+      { x: 495, y: 270, collected: false },
+      { x: 685, y: 270, collected: false },
+      { x: 205, y: 180, collected: false },
+      { x: 595, y: 180, collected: false },
+      { x: 400, y: 90, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, red: true }
+    ],
+    enemies: [
+      { x: 250, y: 285, width: 20, height: 15, vx: 2.0, range: 90, startX: 250 },
+      { x: 440, y: 285, width: 20, height: 15, vx: -2.0, range: 90, startX: 440 },
+      { x: 345, y: 195, width: 20, height: 15, vx: 1.6, range: 45, startX: 345 }
+    ],
+    portal: { x: 20, y: 320, width: 40, height: 60, active: false }
+  },
+  20: {
+    // Level 20 — Volcano (finale). A full pyramid with a gauntlet of guards.
+    platforms: [
+      { x: 0, y: 380, width: 800, height: 20 },
+      { x: 30, y: 310, width: 740, height: 15 },
+      { x: 100, y: 240, width: 600, height: 15 },
+      { x: 180, y: 170, width: 440, height: 15 },
+      { x: 260, y: 100, width: 280, height: 15 },
+      { x: 340, y: 40, width: 120, height: 15 }
+    ],
+    dots: [
+      { x: 80, y: 280, collected: false },
+      { x: 720, y: 280, collected: false },
+      { x: 150, y: 210, collected: false },
+      { x: 650, y: 210, collected: false },
+      { x: 230, y: 140, collected: false },
+      { x: 570, y: 140, collected: false },
+      { x: 400, y: 70, collected: false },
+      { x: 400, y: 10, collected: false, big: true, radius: BIG_DOT_RADIUS },
+      { x: 400, y: 350, collected: false, green: true }
+    ],
+    enemies: [
+      { x: 395, y: 295, width: 20, height: 15, vx: 2.8, range: 300, startX: 395 },
+      { x: 395, y: 225, width: 20, height: 15, vx: -2.4, range: 250, startX: 395 },
+      { x: 395, y: 155, width: 20, height: 15, vx: 2.0, range: 180, startX: 395 }
+    ],
+    portal: { x: 720, y: 320, width: 40, height: 60, active: false }
   }
 };
 
@@ -774,6 +1040,60 @@ const LEVEL_THEMES = {
     skyStart: '#030712', skyEnd: '#0b0f19',
     hillsBack: '#111827', hillsMid: '#1f2937', hillsFore: '#374151',
     platformFill: '#000000', platformStroke: '#111827'
+  },
+  12: {
+    // Mexico: fiesta sunset over terracotta and cactus greens.
+    skyStart: '#fca5a5', skyEnd: '#fde68a',
+    hillsBack: '#65a30d', hillsMid: '#4d7c0f', hillsFore: '#3f6212',
+    platformFill: '#7c2d12', platformStroke: '#c2410c'
+  },
+  13: {
+    // Spain: flamenco reds and gold.
+    skyStart: '#fef3c7', skyEnd: '#fca5a5',
+    hillsBack: '#b91c1c', hillsMid: '#991b1b', hillsFore: '#7f1d1d',
+    platformFill: '#450a0a', platformStroke: '#b45309'
+  },
+  14: {
+    // Sci-fi: neon-lit space station in the dark.
+    skyStart: '#020617', skyEnd: '#0c1a2e',
+    hillsBack: '#0e7490', hillsMid: '#155e75', hillsFore: '#164e63',
+    platformFill: '#020617', platformStroke: '#22d3ee'
+  },
+  15: {
+    // Japan: cherry-blossom pinks.
+    skyStart: '#fce7f3', skyEnd: '#fbcfe8',
+    hillsBack: '#f9a8d4', hillsMid: '#f472b6', hillsFore: '#ec4899',
+    platformFill: '#831843', platformStroke: '#be185d'
+  },
+  16: {
+    // Egypt: desert sand and pharaoh gold.
+    skyStart: '#fef9c3', skyEnd: '#fde68a',
+    hillsBack: '#ca8a04', hillsMid: '#a16207', hillsFore: '#854d0e',
+    platformFill: '#78350f', platformStroke: '#a16207'
+  },
+  17: {
+    // Atlantis: sunken teal depths.
+    skyStart: '#0e7490', skyEnd: '#155e75',
+    hillsBack: '#0d9488', hillsMid: '#0f766e', hillsFore: '#115e59',
+    platformFill: '#042f2e', platformStroke: '#0f766e'
+  },
+  18: {
+    // Nordic: frozen ice fields.
+    skyStart: '#e0f2fe', skyEnd: '#f0f9ff',
+    hillsBack: '#bae6fd', hillsMid: '#7dd3fc', hillsFore: '#38bdf8',
+    platformFill: '#0c4a6e', platformStroke: '#075985'
+  },
+  19: {
+    // Cyberpunk: magenta neon on black.
+    skyStart: '#0a0118', skyEnd: '#2e0a3a',
+    hillsBack: '#701a75', hillsMid: '#86198f', hillsFore: '#a21caf',
+    platformFill: '#000000', platformStroke: '#d946ef'
+  },
+  20: {
+    // Volcano finale: molten lava and ash.
+    skyStart: '#450a0a', skyEnd: '#1c0a0a',
+    hillsBack: '#7f1d1d', hillsMid: '#991b1b', hillsFore: '#dc2626',
+    platformFill: '#0a0000', platformStroke: '#ea580c'
   }
 };
 
@@ -1178,13 +1498,16 @@ function handleCheatInput(keyChar) {
     const lastPart = currentStr.slice(-(debugPrefix.length + 1));
     if (lastPart.startsWith(debugPrefix)) {
       const suffix = lastPart.charAt(debugPrefix.length);
+      // Levels 1-9 use their digit, 0 jumps to 10, and letters a..k cover
+      // levels 11-20 so every level is reachable from a single keystroke.
+      const letterLevels = { a: 11, b: 12, c: 13, d: 14, e: 15, f: 16, g: 17, h: 18, i: 19, j: 20 };
       let targetLevel = -1;
       if (suffix >= '1' && suffix <= '9') {
         targetLevel = parseInt(suffix, 10);
       } else if (suffix === '0') {
         targetLevel = 10;
-      } else if (suffix === 'a' || suffix === 'b' || suffix === 'e') {
-        targetLevel = 11;
+      } else if (letterLevels[suffix]) {
+        targetLevel = letterLevels[suffix];
       }
 
       if (targetLevel !== -1 && LEVELS[targetLevel]) {
