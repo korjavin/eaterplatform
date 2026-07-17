@@ -6,6 +6,7 @@ const scoreVal = document.getElementById('score-val');
 const livesVal = document.getElementById('lives-val');
 const levelVal = document.getElementById('level-val');
 const resetSizeBtn = document.getElementById('reset-size-btn');
+const touchResetBtn = document.getElementById('touch-reset');
 const playerNameField = document.getElementById('player-name-field');
 const playerNameInput = document.getElementById('player-name');
 const playerNameError = document.getElementById('player-name-error');
@@ -1289,6 +1290,12 @@ playerNameInput.addEventListener('keydown', (event) => {
 });
 
 resetSizeBtn.addEventListener('click', triggerSizeReset);
+if (touchResetBtn) {
+  touchResetBtn.addEventListener('click', () => {
+    if (navigator.vibrate) navigator.vibrate(15);
+    triggerSizeReset();
+  });
+}
 configureMobileControls();
 
 const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -1493,6 +1500,7 @@ function updateHUD() {
   livesVal.textContent = `${'❤'.repeat(fullHearts)}${hasHalfHeart ? '💔' : ''}`;
   setTranslatedText(levelVal, 'level_hud_value', { level, rank: getRankName(level) });
   resetSizeBtn.disabled = (player.radius <= 15);
+  if (touchResetBtn) touchResetBtn.disabled = (player.radius <= 15);
 }
 
 function handleCheatInput(keyChar) {

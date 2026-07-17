@@ -357,11 +357,17 @@ header h1 {
   pointer-events: auto;
 }
 
+/* Stack the action buttons so Reset (R) sits above Jump for the thumb. */
+.action-buttons {
+  flex-direction: column;
+  align-items: center;
+}
+
 .touch-btn {
-  width: clamp(46px, 11vw, 60px);
-  height: clamp(46px, 11vw, 60px);
+  width: clamp(48px, 12vw, 64px);
+  height: clamp(62px, 16vw, 84px);
   border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 50%;
+  border-radius: 22px;
   background: rgba(11, 12, 16, 0.22);
   color: var(--text-bright);
   font: 800 1.35rem/1 var(--font-family);
@@ -380,14 +386,29 @@ header h1 {
   transform: scale(0.95);
 }
 
+.touch-btn:disabled {
+  opacity: 0.32;
+}
+
 .jump-btn {
   border-color: rgba(243, 202, 32, 0.44);
   background: rgba(243, 202, 32, 0.18);
 }
 
+/* Reset / Spit Star thumb button: pink accent to match the panel control. */
+.reset-touch-btn {
+  border-color: rgba(255, 0, 127, 0.44);
+  background: rgba(255, 0, 127, 0.18);
+}
+
 @media (max-width: 1024px), (pointer: coarse) {
   .mobile-controls-overlay {
     display: flex;
+  }
+
+  /* The on-screen R button replaces the panel Reset control on touch. */
+  #reset-size-btn {
+    display: none;
   }
 }
 
