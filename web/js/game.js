@@ -1209,12 +1209,17 @@ function configureMobileControls() {
     control.element.classList.toggle('active', isPressed);
   };
 
+  const pressControl = (control) => {
+    if (control.code === 'Space' && navigator.vibrate) navigator.vibrate(15);
+    setControlState(control, true);
+  };
+
   controls.forEach((control) => {
     if (!control.element) return;
 
     control.element.addEventListener('touchstart', (event) => {
       event.preventDefault();
-      setControlState(control, true);
+      pressControl(control);
     }, { passive: false });
 
     control.element.addEventListener('touchend', (event) => {
@@ -1230,7 +1235,7 @@ function configureMobileControls() {
       if (event.pointerType === 'mouse') return;
       event.preventDefault();
       control.element.setPointerCapture(event.pointerId);
-      setControlState(control, true);
+      pressControl(control);
     });
 
     control.element.addEventListener('pointerup', (event) => {
@@ -1285,6 +1290,20 @@ playerNameInput.addEventListener('keydown', (event) => {
 
 resetSizeBtn.addEventListener('click', triggerSizeReset);
 configureMobileControls();
+
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+if (fullscreenBtn) {
+  fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      const wrapper = document.querySelector('.canvas-wrapper');
+      if (wrapper && wrapper.requestFullscreen) {
+        wrapper.requestFullscreen().catch(() => {});
+      }
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  });
+}
 
 openRulesBtn.addEventListener('click', () => {
   rulesModal.classList.remove('hidden');

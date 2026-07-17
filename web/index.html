@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Eater Platformer | html5 game</title>
   <meta name="description" content="Eater Platformer - A blocky green monster's chomp-tastic arcade adventure.">
   <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🟡</text></svg>">
@@ -15,6 +15,7 @@
   <div id="app-container">
     <header>
       <button id="settings-btn" class="settings-btn" type="button" aria-label="Settings" title="Settings">⚙</button>
+      <button id="fullscreen-btn" class="fullscreen-btn" type="button" aria-label="Toggle fullscreen" title="Toggle fullscreen">⛶</button>
       <h1 data-i18n="title">🟡 Eater Platformer</h1>
       <p class="subtitle" data-i18n="subtitle">A blocky green monster's chomp-tastic arcade adventure!</p>
     </header>
@@ -23,6 +24,10 @@
       <div class="game-card">
         <div class="canvas-wrapper">
           <canvas id="game-canvas" width="800" height="400"></canvas>
+          <div id="rotate-hint" class="rotate-hint" aria-hidden="true">
+            <span class="rotate-hint-icon">📱↻</span>
+            <span class="rotate-hint-text">Rotate your device to landscape</span>
+          </div>
           <div id="mobile-controls" class="mobile-controls-overlay" aria-label="Mobile game controls">
             <div class="dpad">
               <button id="touch-left" class="touch-btn" type="button" aria-label="Move Left">◀</button>
@@ -181,6 +186,6 @@
     </div>
   </div>
 
-  <script src="js/game.js?v=20"></script>
+  <script src="js/game.js?v=21"></script>
 </body>
 </html>

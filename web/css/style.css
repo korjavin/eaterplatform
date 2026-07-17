@@ -85,6 +85,31 @@ header h1 {
   outline: none;
 }
 
+.fullscreen-btn {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(69, 243, 255, 0.45);
+  border-radius: 50%;
+  background: rgba(31, 40, 51, 0.92);
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(69, 243, 255, 0.18);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fullscreen-btn:hover,
+.fullscreen-btn:focus-visible {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 24px rgba(69, 243, 255, 0.38);
+  transform: scale(1.06);
+  outline: none;
+}
+
 .game-card {
   background-color: var(--card-bg);
   border-radius: var(--border-radius);
@@ -335,9 +360,9 @@ header h1 {
 .touch-btn {
   width: clamp(52px, 13vw, 72px);
   height: clamp(52px, 13vw, 72px);
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50%;
-  background: rgba(11, 12, 16, 0.45);
+  background: rgba(11, 12, 16, 0.3);
   color: var(--text-bright);
   font: 800 1.35rem/1 var(--font-family);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
@@ -363,6 +388,58 @@ header h1 {
 @media (max-width: 1024px), (pointer: coarse) {
   .mobile-controls-overlay {
     display: flex;
+  }
+}
+
+/* Rotate-to-landscape hint (CSS-only) */
+.rotate-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  background: rgba(11, 12, 16, 0.9);
+  backdrop-filter: blur(6px);
+}
+
+.rotate-hint-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.rotate-hint-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+  .rotate-hint {
+    display: flex;
+  }
+}
+
+/* Larger touch targets on small screens */
+@media (max-width: 520px) {
+  .touch-btn {
+    width: clamp(60px, 18vw, 80px);
+    height: clamp(60px, 18vw, 80px);
+  }
+}
+
+/* Maximize play area in mobile landscape (keeps 2/1 via aspect-ratio) */
+@media (orientation: landscape) and (pointer: coarse) {
+  .canvas-wrapper {
+    width: min(100%, 200vh);
+    width: min(100%, 200dvh);
+    margin: 0 auto;
   }
 }
 
