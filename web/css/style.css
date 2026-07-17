@@ -363,6 +363,23 @@ header h1 {
   align-items: center;
 }
 
+/* Join the left/right buttons into one gapless segmented pad so a finger
+   can slide between them with no dead zone. */
+.dpad {
+  gap: 0;
+}
+
+.dpad .touch-btn:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.dpad .touch-btn:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
+}
+
 .touch-btn {
   width: clamp(48px, 12vw, 64px);
   height: clamp(62px, 16vw, 84px);

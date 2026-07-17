@@ -1202,53 +1202,66 @@ function configureMobileControls() {
     { element: document.getElementById('touch-left'), code: 'ArrowLeft' },
     { element: document.getElementById('touch-right'), code: 'ArrowRight' },
     { element: document.getElementById('touch-jump'), code: 'Space' }
-  ];
+  ].filter((control) => control.element);
+  if (!controls.length) return;
+
+  const byElement = new Map(controls.map((control) => [control.element, control]));
 
   const setControlState = (control, isPressed) => {
-    if (!control.element) return;
     keys[control.code] = isPressed;
     control.element.classList.toggle('active', isPressed);
   };
 
-  const pressControl = (control) => {
-    if (control.code === 'Space' && navigator.vibrate) navigator.vibrate(15);
-    setControlState(control, true);
+  // Which button, if any, sits under the given screen point. Using
+  // elementFromPoint (rather than per-button capture) lets a finger slide
+  // straight from one button onto another without lifting.
+  const controlAtPoint = (x, y) => {
+    const el = document.elementFromPoint(x, y);
+    const btn = el && el.closest('.touch-btn');
+    return btn ? byElement.get(btn) || null : null;
+  };
+
+  const active = new Set(); // pointerIds currently pressed
+  const held = new Map();    // pointerId -> control the finger is over
+
+  const updatePointer = (pointerId, x, y) => {
+    const next = controlAtPoint(x, y);
+    const prev = held.get(pointerId) || null;
+    if (next === prev) return;
+    if (prev) setControlState(prev, false);
+    if (next) {
+      setControlState(next, true);
+      if (next.code === 'Space' && navigator.vibrate) navigator.vibrate(15);
+      held.set(pointerId, next);
+    } else {
+      held.delete(pointerId);
+    }
+  };
+
+  const releasePointer = (pointerId) => {
+    const prev = held.get(pointerId);
+    if (prev) setControlState(prev, false);
+    held.delete(pointerId);
+    active.delete(pointerId);
   };
 
   controls.forEach((control) => {
-    if (!control.element) return;
-
-    control.element.addEventListener('touchstart', (event) => {
-      event.preventDefault();
-      pressControl(control);
-    }, { passive: false });
-
-    control.element.addEventListener('touchend', (event) => {
-      event.preventDefault();
-      setControlState(control, false);
-    }, { passive: false });
-
-    control.element.addEventListener('touchcancel', () => {
-      setControlState(control, false);
-    });
-
     control.element.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'mouse') return;
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
       event.preventDefault();
-      control.element.setPointerCapture(event.pointerId);
-      pressControl(control);
-    });
-
-    control.element.addEventListener('pointerup', (event) => {
-      if (event.pointerType === 'mouse') return;
-      event.preventDefault();
-      setControlState(control, false);
-    });
-
-    control.element.addEventListener('pointercancel', () => {
-      setControlState(control, false);
+      active.add(event.pointerId);
+      updatePointer(event.pointerId, event.clientX, event.clientY);
     });
   });
+
+  document.addEventListener('pointermove', (event) => {
+    if (!active.has(event.pointerId)) return;
+    event.preventDefault();
+    updatePointer(event.pointerId, event.clientX, event.clientY);
+  }, { passive: false });
+
+  document.addEventListener('pointerup', (event) => releasePointer(event.pointerId));
+  document.addEventListener('pointercancel', (event) => releasePointer(event.pointerId));
 }
 
 // Setup input listeners
