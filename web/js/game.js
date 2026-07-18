@@ -401,6 +401,7 @@ let lives = 3;
 let levelStartLives = 3;
 let level = 1;
 let gameActive = false;
+let paused = false;
 let scoreSubmitted = false;
 let mouthAngle = 0.2;
 let mouthClosing = false;
@@ -1267,6 +1268,17 @@ function configureMobileControls() {
 // Setup input listeners
 window.addEventListener('keydown', (e) => {
   if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+  // P key toggles pause
+  if (e.code === 'KeyP' && !e.repeat && gameActive) {
+    paused = !paused;
+    if (paused) {
+      soundEffects.stopBackgroundMusic();
+    } else {
+      soundEffects.startBackgroundMusic();
+    }
+    return;
+  }
+  if (paused) return; // Ignore other keys while paused
   if (e.key && e.key.length === 1 && !e.repeat) handleCheatInput(e.key);
   if (e.code in keys) keys[e.code] = true;
   if (e.code === 'KeyR' && !e.repeat) {
@@ -1484,6 +1496,7 @@ function resetGame() {
   lives = 3;
   levelStartLives = 3;
   level = 1;
+  paused = false;
   scoreSubmitted = false;
   loadLevel(level);
 }
@@ -2705,10 +2718,39 @@ function draw() {
   }
 }
 
+function drawPauseOverlay() {
+  ctx.save();
+  // Dim the screen
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // "PAUSED" text
+  ctx.font = 'bold 64px "Comic Sans MS", "Bangers", cursive';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 6;
+  ctx.strokeText('PAUSED', canvas.width / 2, canvas.height / 2 - 10);
+  ctx.fillStyle = '#45f3ff';
+  ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2 - 10);
+  // Hint
+  ctx.font = '22px "Comic Sans MS", cursive';
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 3;
+  ctx.strokeText('Press P to continue', canvas.width / 2, canvas.height / 2 + 40);
+  ctx.fillText('Press P to continue', canvas.width / 2, canvas.height / 2 + 40);
+  ctx.restore();
+}
+
 function gameLoop() {
   if (gameActive) {
-    update();
+    if (!paused) {
+      update();
+    }
     draw();
+    if (paused) {
+      drawPauseOverlay();
+    }
     requestAnimationFrame(gameLoop);
   }
 }
