@@ -327,6 +327,7 @@ header h1 {
   align-items: center;
   gap: 12px;
   margin-top: 4px;
+  grid-column: 1 / -1;
 }
 
 .reset-size-btn {
@@ -346,12 +347,13 @@ header h1 {
 }
 
 .restart-game-btn {
-  padding: 4px 10px;
+  padding: 6px 10px;
   font-size: 0.7rem;
   border-radius: 6px;
   background: rgba(255, 60, 60, 0.10);
   border: 1px solid rgba(255, 60, 60, 0.3);
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .restart-game-btn:hover,
