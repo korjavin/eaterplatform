@@ -19,6 +19,7 @@ const languageSelect = document.getElementById('setting-lang');
 const rulesModal = document.getElementById('rules-modal');
 const openRulesBtn = document.getElementById('open-rules-btn');
 const closeRulesBtn = document.getElementById('close-rules-btn');
+const restartGameBtn = document.getElementById('restart-game-btn');
 
 const DEFAULT_SETTINGS = {
   sound: true,
@@ -1315,6 +1316,19 @@ playerNameInput.addEventListener('keydown', (event) => {
 });
 
 resetSizeBtn.addEventListener('click', triggerSizeReset);
+
+restartGameBtn.addEventListener('click', () => {
+  if (!confirm('Restart the game? All progress will be lost.')) return;
+  gameActive = false;
+  paused = false;
+  soundEffects.stopBackgroundMusic();
+  resetGame();
+  setTranslatedText(overlay.querySelector('h2'), 'title');
+  setTranslatedText(overlay.querySelector('p'), 'intro_text');
+  setTranslatedText(overlay.querySelector('button'), 'start_game');
+  overlay.classList.remove('hidden');
+  draw();
+});
 if (touchResetBtn) {
   touchResetBtn.addEventListener('click', () => {
     if (navigator.vibrate) navigator.vibrate(15);
