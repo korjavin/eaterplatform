@@ -321,15 +321,21 @@ header h1 {
   outline: none;
 }
 
+.btn-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
 .reset-size-btn {
-  justify-self: center;
   padding: 6px 12px;
   font-size: 0.8rem;
   border-radius: 6px;
   background: rgba(255, 0, 127, 0.12);
   border: 1px solid rgba(255, 0, 127, 0.4);
   color: var(--text-bright);
-  margin-top: 4px;
 }
 
 .reset-size-btn:hover,
@@ -340,14 +346,12 @@ header h1 {
 }
 
 .restart-game-btn {
-  justify-self: center;
   padding: 4px 10px;
   font-size: 0.7rem;
   border-radius: 6px;
   background: rgba(255, 60, 60, 0.10);
   border: 1px solid rgba(255, 60, 60, 0.3);
   color: var(--text-muted);
-  margin-top: 2px;
 }
 
 .restart-game-btn:hover,
