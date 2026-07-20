@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   app:
-    image: ghcr.io/korjavin/eaterplatform:latest
+    image: ghcr.io/korjavin/eaterplatform:94b7ffc7c3d5223d84ae031856a0cb9ddc2b8476
     container_name: eaterplatform
     environment:
       - DATABASE_PATH=/app/data/eater.db
