@@ -478,7 +478,7 @@ let enemies = [];
 let portal = { x: 0, y: 0, width: 40, height: 60, active: false };
 let heartBox = null;
 
-// Rare bonus box: 10% chance per level. Grants a heart on touch, then
+// Rare bonus box: 10% chance per level. Grants 5 hearts on touch, then
 // blinks for a second before spawning a roaming enemy that hunts the
 // player instead of patrolling a fixed range - a small risk/reward trade.
 const HEART_BOX_SPAWN_CHANCE = 0.1;
@@ -2100,7 +2100,7 @@ function update() {
     portal.active = true;
   }
 
-  // Heart box: grants a heart on touch, then blinks for a second before
+  // Heart box: grants 5 hearts on touch, then blinks for a second before
   // spawning a roaming enemy where it stood.
   if (heartBox) {
     if (!heartBox.collected) {
@@ -2110,7 +2110,7 @@ function update() {
       if (distance < player.radius + heartBox.width / 2) {
         heartBox.collected = true;
         heartBox.blinkEndTime = Date.now() + HEART_BOX_BLINK_MS;
-        lives = Math.min(5, lives + 1);
+        lives += 5;
         soundEffects.playHeartPickupSound();
         updateHUD();
       }
